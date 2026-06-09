@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Hub - Counselor Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#00668F',
+                        'brand-dark': '#004A6A',
+                        'bg-light': '#F8FAFC',
+                        'sidebar-active': '#E0F2FE',
+                        'chat-bg': '#F4F7F9',
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+                        'script': ['Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Transisi halus untuk perpindahan chat */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-white font-sans text-gray-800 h-screen flex overflow-hidden">
+
+    <aside class="w-64 bg-white border-r border-gray-100 flex flex-col justify-between hidden md:flex z-20 shadow-sm flex-shrink-0">
+        <div>
+            <div class="h-20 flex items-center px-8 border-b border-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center text-white font-bold text-sm">P</div>
+                    <div>
+                        <h1 class="text-brand-blue font-bold text-sm leading-tight">Polimedia</h1>
+                        <p class="text-[10px] text-gray-400">Counselor Portal</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-2 mt-4">
+                <a href="counselor-dashboard.html" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium text-sm transition"><span>⊞</span> Dashboard</a>
+                <a href="counselor-queue.html" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium text-sm transition"><span>⌛</span> Active Queue</a>
+                <a href="counselor-chat.html" class="flex items-center gap-3 px-4 py-3 bg-sidebar-active text-brand-blue rounded-xl font-semibold text-sm border-l-4 border-brand-blue"><span>💬</span> Chat Hub</a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium text-sm transition"><span>🕒</span> Session History</a>
+            </nav>
+        </div>
+
+        <div class="p-6">
+            <button class="w-full bg-brand-blue hover:bg-brand-dark text-white py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 shadow-sm">
+                <span>+</span> Start New Session
+            </button>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 z-10 flex-shrink-0">
+            <div class="flex items-center gap-6">
+                <h2 class="text-brand-blue font-bold text-lg">Chat Hub</h2>
+                <a href="#" class="text-brand-blue text-sm font-semibold border-b-2 border-brand-blue pb-1">Live Sessions</a>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <div class="flex items-center bg-gray-50 rounded-full px-4 py-2 w-64 border border-gray-100 hidden md:flex">
+                    <span class="text-gray-400 text-sm">🔍</span>
+                    <input type="text" placeholder="Cari percakapan..." class="bg-transparent border-none outline-none ml-2 text-xs w-full text-gray-600 placeholder-gray-400">
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="text-gray-400 hover:text-gray-600">🔔</button>
+                    <button class="text-gray-400 hover:text-gray-600">⚙️</button>
+                    <div class="w-9 h-9 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Siti" alt="Counselor Profile" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 flex overflow-hidden bg-white">
+            
+            <div class="w-80 bg-bg-light border-r border-gray-100 flex flex-col flex-shrink-0">
+                <div class="p-6 pb-2">
+                    <h2 class="text-xl font-bold text-gray-900 mb-1">Pesan Aktif</h2>
+                    <p class="text-xs text-gray-500 leading-relaxed">Temukan dukungan di setiap kata.</p>
+                </div>
+
+                <div class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-2" id="contactList">
+                    <div class="contact-item active-contact bg-white p-3 rounded-2xl shadow-sm border-l-4 border-brand-blue flex items-start gap-3 cursor-pointer transition" data-id="syanaz">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=100&h=100&q=80" alt="Syanaz" class="w-full h-full object-cover"></div>
+                            <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center mb-0.5">
+                                <h4 class="font-bold text-sm text-gray-900 truncate">Syanaz</h4>
+                                <span class="text-[9px] font-bold text-green-600 uppercase tracking-widest status-time">Active</span>
+                            </div>
+                            <p class="text-xs text-gray-500 truncate last-message">Terima kasih sudah bercerita...</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item p-3 rounded-2xl hover:bg-gray-50 flex items-start gap-3 cursor-pointer transition border-l-4 border-transparent" data-id="dimas">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=100&h=100&q=80" alt="Dimas Pratama" class="w-full h-full object-cover"></div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center mb-0.5">
+                                <h4 class="font-bold text-sm text-gray-900 truncate">Dimas Pratama</h4>
+                                <span class="text-[10px] text-gray-400 status-time">1 jam lalu</span>
+                            </div>
+                            <p class="text-xs text-gray-500 truncate last-message">Sama-sama, saya di sini untukmu.</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item p-3 rounded-2xl hover:bg-gray-50 flex items-start gap-3 cursor-pointer transition border-l-4 border-transparent" data-id="rina">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=100&h=100&q=80" alt="Rina Safitri" class="w-full h-full object-cover"></div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center mb-0.5">
+                                <h4 class="font-bold text-sm text-gray-900 truncate">Rina Safitri</h4>
+                                <span class="text-[10px] text-gray-400 status-time">Kemarin</span>
+                            </div>
+                            <p class="text-xs text-gray-500 truncate last-message">Besok kita lanjut lagi ya?</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 text-center text-brand-blue font-script italic text-sm opacity-60">
+                    Bicaralah dari hati.
+                </div>
+            </div>
+
+            <div class="flex-1 flex flex-col bg-white relative">
+                
+                <div class="h-20 border-b border-gray-100 px-8 flex items-center justify-between flex-shrink-0 bg-white z-10">
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                                <img id="headerAvatar" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=100&h=100&q=80" alt="Avatar" class="w-full h-full object-cover">
+                            </div>
+                            <div id="headerStatusDot" class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                        </div>
+                        <div>
+                            <h3 id="headerName" class="font-bold text-gray-900">Syanaz</h3>
+                            <p id="headerStatusText" class="text-[10px] font-bold text-green-600 uppercase tracking-widest mt-0.5">ONLINE SEKARANG</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 text-gray-400">
+                        <button class="hover:text-brand-blue transition">📞</button>
+                        <button class="hover:text-brand-blue transition">⋮</button>
+                    </div>
+                </div>
+
+                <div id="chatArea" class="flex-1 overflow-y-auto no-scrollbar p-8 flex flex-col fade-in">
+                    </div>
+
+                <div class="p-6 border-t border-gray-100 bg-white flex-shrink-0">
+                    <div class="flex justify-end gap-3 mb-4">
+                        <button class="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-brand-blue transition bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm">
+                            📅 Jadwalkan Lanjutan
+                        </button>
+                        <a href="form-ringkasan.html" class="flex items-center gap-2 text-xs font-bold text-white bg-[#4D7C0F] hover:bg-green-700 transition px-5 py-2 rounded-full shadow-sm">
+                            Selesaikan Sesi & Ringkasan ✔️
+                        </a>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-full p-2 flex items-center shadow-sm focus-within:border-brand-blue focus-within:ring-1 focus-within:ring-brand-blue transition">
+                        <button class="text-gray-400 hover:text-gray-600 px-3 text-lg">😊</button>
+                        <button class="text-gray-400 hover:text-gray-600 px-2 text-lg mr-2">📎</button>
+                        <input type="text" id="messageInput" placeholder="Tuliskan isi hatimu di sini..." class="flex-1 bg-transparent border-none outline-none text-sm text-gray-700" autocomplete="off">
+                        <button id="sendBtn" class="bg-brand-blue hover:bg-brand-dark text-white font-bold text-sm px-6 py-2.5 rounded-full transition flex items-center gap-2">
+                            Kirim <span>➔</span>
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Kerahasiaan percakapan Anda terjamin sepenuhnya</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. DATABASE PALSU (MOCK DATA)
+            const chatDatabase = {
+                'syanaz': {
+                    name: 'Syanaz',
+                    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=100&h=100&q=80',
+                    isOnline: true,
+                    statusText: 'ONLINE SEKARANG',
+                    messages: [
+                        { type: 'date', text: 'Percakapan Hari Ini' },
+                        { sender: 'client', time: '14:02', text: 'Halo kak. Saya mau cerita tentang tugas kuliah yang menumpuk. Rasanya sangat melelahkan dan saya mulai kehilangan semangat.' },
+                        { sender: 'counselor', time: '14:05', text: 'Saya sangat memahami itu. Banyak rekan mahasiswa lain juga merasakan hal yang sama. Ingin menceritakan bagian mana yang paling membebani pikiranmu saat ini?' },
+                        { sender: 'client', time: '14:06', text: 'Halo kak. Terima kasih. Sejujurnya saya merasa sedikit tertekan dengan tugas akhir saya. Rasanya seperti kehilangan arah.' },
+                        { sender: 'counselor', time: '14:08', text: 'Kamu sepertinya membutuhkan liburan dan istirahat yang cukup. Sudah coba mengatur ulang jadwal?' }
+                    ]
+                },
+                'dimas': {
+                    name: 'Dimas Pratama',
+                    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=100&h=100&q=80',
+                    isOnline: false,
+                    statusText: 'TERAKHIR DILIHAT 1 JAM LALU',
+                    messages: [
+                        { type: 'date', text: 'Kemarin' },
+                        { sender: 'client', time: '09:15', text: 'Kak, terima kasih banyak ya untuk sesi konselingnya kemarin. Saya sudah merasa jauh lebih baik.' },
+                        { sender: 'counselor', time: '09:30', text: 'Syukurlah Dimas. Ingat untuk terus mempraktikkan teknik pernapasan yang kita diskusikan ya.' },
+                        { sender: 'client', time: '10:00', text: 'Siap kak! Sangat membantu sekali.' },
+                        { sender: 'counselor', time: '10:15', text: 'Sama-sama, saya di sini untukmu. Jangan ragu hubungi lagi jika butuh.' }
+                    ]
+                },
+                'rina': {
+                    name: 'Rina Safitri',
+                    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=100&h=100&q=80',
+                    isOnline: false,
+                    statusText: 'TERAKHIR DILIHAT KEMARIN',
+                    messages: [
+                        { type: 'date', text: '2 Hari Lalu' },
+                        { sender: 'client', time: '16:00', text: 'Maaf kak saya harus undur diri dari sesi hari ini karena ada kelas pengganti mendadak.' },
+                        { sender: 'counselor', time: '16:10', text: 'Tidak apa-apa Rina. Akademik tetap nomor satu. Kapan sekiranya kamu ada waktu luang?' },
+                        { sender: 'client', time: '16:20', text: 'Besok kita lanjut lagi ya?' }
+                    ]
+                }
+            };
+
+            // Elemen DOM
+            const contactItems = document.querySelectorAll('.contact-item');
+            const chatArea = document.getElementById('chatArea');
+            const headerName = document.getElementById('headerName');
+            const headerAvatar = document.getElementById('headerAvatar');
+            const headerStatusText = document.getElementById('headerStatusText');
+            const headerStatusDot = document.getElementById('headerStatusDot');
+            const messageInput = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+            
+            let currentChatId = 'syanaz'; // Chat awal
+
+            // 2. FUNGSI UNTUK MERENDER PESAN KE LAYAR
+            function renderMessages(chatId) {
+                const data = chatDatabase[chatId];
+                chatArea.innerHTML = ''; // Bersihkan layar
+
+                data.messages.forEach(msg => {
+                    let html = '';
+                    if (msg.type === 'date') {
+                        // Render Tanggal
+                        html = `
+                            <div class="flex justify-center mb-8">
+                                <span class="bg-gray-100 text-gray-500 text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">${msg.text}</span>
+                            </div>`;
+                    } else if (msg.sender === 'client') {
+                        // Render Chat Klien (Kiri)
+                        html = `
+                            <div class="flex flex-col items-start mb-6 max-w-2xl">
+                                <div class="bg-[#E2E8F0] text-gray-800 px-6 py-4 rounded-2xl rounded-tl-sm text-sm leading-relaxed mb-1 shadow-sm">
+                                    ${msg.text}
+                                </div>
+                                <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider pl-2">${data.name.split(' ')[0]} • ${msg.time}</span>
+                            </div>`;
+                    } else {
+                        // Render Chat Konselor (Kanan)
+                        html = `
+                            <div class="flex flex-col items-end mb-6 max-w-2xl self-end">
+                                <div class="bg-brand-blue text-white px-6 py-4 rounded-2xl rounded-tr-sm text-sm leading-relaxed mb-1 shadow-sm">
+                                    ${msg.text}
+                                </div>
+                                <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider pr-2">ANDA • ${msg.time}</span>
+                            </div>`;
+                    }
+                    chatArea.insertAdjacentHTML('beforeend', html);
+                });
+
+                // Trigger Animasi CSS & Scroll Paling Bawah
+                chatArea.classList.remove('fade-in');
+                void chatArea.offsetWidth; // Trigger reflow
+                chatArea.classList.add('fade-in');
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }
+
+            // 3. LOGIKA GANTI ROOM CHAT
+            contactItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Update tampilan menu kontak aktif
+                    document.querySelector('.active-contact').classList.remove('active-contact', 'bg-white', 'shadow-sm', 'border-brand-blue');
+                    document.querySelector('.active-contact')?.classList.add('hover:bg-gray-50', 'border-transparent');
+                    
+                    this.classList.remove('hover:bg-gray-50', 'border-transparent');
+                    this.classList.add('active-contact', 'bg-white', 'shadow-sm', 'border-brand-blue');
+
+                    currentChatId = this.getAttribute('data-id');
+                    const data = chatDatabase[currentChatId];
+
+                    // Update Header
+                    headerName.textContent = data.name;
+                    headerAvatar.src = data.avatar;
+                    headerStatusText.textContent = data.statusText;
+                    
+                    if(data.isOnline) {
+                        headerStatusText.className = "text-[10px] font-bold text-green-600 uppercase tracking-widest mt-0.5";
+                        headerStatusDot.classList.remove('hidden');
+                    } else {
+                        headerStatusText.className = "text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5";
+                        headerStatusDot.classList.add('hidden');
+                    }
+
+                    // Render ulang isi chat
+                    renderMessages(currentChatId);
+                });
+            });
+
+            // 4. LOGIKA KIRIM PESAN BARU
+            function sendMessage() {
+                const text = messageInput.value.trim();
+                if (text === '') return;
+
+                // Dapatkan jam saat ini (HH:MM)
+                const now = new Date();
+                const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+                // Tambahkan pesan ke database lokal
+                chatDatabase[currentChatId].messages.push({
+                    sender: 'counselor',
+                    time: timeStr,
+                    text: text
+                });
+
+                // Update teks "Last Message" di sidebar sebelah kiri
+                const activeContact = document.querySelector(`.contact-item[data-id="${currentChatId}"]`);
+                activeContact.querySelector('.last-message').textContent = text;
+
+                // Render ulang & bersihkan input
+                renderMessages(currentChatId);
+                messageInput.value = '';
+                messageInput.focus();
+            }
+
+            // Eksekusi kirim pesan saat klik tombol atau tekan Enter
+            sendBtn.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Load Chat Pertama Kali
+            renderMessages(currentChatId);
+        });
+    </script>
+</body>
+</html>

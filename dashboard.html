@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Analisis - Polimedia Peer Counselor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#00668F',
+                        'brand-dark': '#004A6A',
+                        'brand-light': '#F8FAFC',
+                        'card-bg': '#F4F6F9',
+                        'brand-green': '#A3E635',
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Table Styles */
+        .analytics-table th { padding: 16px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #9CA3AF; font-weight: 700; border-bottom: 1px solid #F3F4F6; }
+        .analytics-table td { padding: 16px; font-size: 13px; color: #374151; font-weight: 500; border-bottom: 1px solid #F3F4F6; }
+        .analytics-table tr:last-child td { border-bottom: none; }
+    </style>
+</head>
+<body class="bg-white font-sans text-gray-800 min-h-screen pb-10">
+
+    <nav class="flex justify-between items-center px-6 md:px-12 py-5 bg-white border-b border-gray-50 mb-8 sticky top-0 z-50">
+        <div class="text-brand-blue font-semibold italic text-lg tracking-wide">Polimedia Peer Counselor</div>
+        <div class="hidden md:flex gap-8 text-sm font-medium text-gray-500">
+            <a href="index.html" class="hover:text-brand-blue transition">Beranda</a>
+            <a href="riwayat.html" class="hover:text-brand-blue transition">Riwayat</a>
+            <a href="pilih-konselor.html" class="hover:text-brand-blue transition">Jelajahi</a>
+            <a href="tentang.html" class="hover:text-brand-blue transition">Tentang Kami</a>
+            <a href="dashboard-analisis.html" class="text-brand-blue font-bold border-b-2 border-brand-blue pb-1">Feedback</a>
+        </div>
+        <div class="flex gap-4 text-gray-400 items-center">
+            <button class="hover:text-brand-blue transition text-xl">🔔</button>
+            <a href="auth.html" title="Profil" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition cursor-pointer text-gray-400 hover:text-brand-blue border border-gray-200 bg-gray-50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+            </a>
+        </div>
+    </nav>
+
+    <main class="max-w-[1200px] mx-auto px-6 space-y-12">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">Dashboard Analisis Data Kuantitatif</h1>
+                <p class="text-gray-500 text-sm">Metrik mendalam berdasarkan performa sistem dan feedback pengguna.</p>
+            </div>
+            
+            <div class="flex bg-white border border-gray-200 rounded-full p-1 shadow-sm">
+                <button id="btnMingguan" onclick="setTimeView('mingguan')" class="px-5 py-1.5 rounded-full text-sm font-bold bg-brand-light text-brand-blue shadow-sm border border-gray-100 transition">Mingguan</button>
+                <button id="btnBulanan" onclick="setTimeView('bulanan')" class="px-5 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:text-brand-blue transition">Bulanan</button>
+            </div>
+        </div>
+
+        <section>
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-gray-900">Kualitas Konselor</h2>
+                <p class="text-xs text-gray-500 mt-1">Fluktuasi nilai rata-rata per minggu</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div class="w-10 h-10 bg-blue-50 text-brand-blue rounded-full flex items-center justify-center text-lg mb-6">👥</div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-2">Total Responden</p>
+                        <h2 class="text-4xl font-black text-gray-800 mb-2">1,284</h2>
+                        <span class="text-xs font-bold text-green-600">📈 +12% Naik</span>
+                    </div>
+                </div>
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div class="w-10 h-10 bg-green-50 text-green-600 rounded-full flex items-center justify-center text-lg mb-6">★</div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-2">Rata-rata Global</p>
+                        <h2 class="text-4xl font-black text-gray-800 mb-2">4.62<span class="text-lg text-gray-400 font-bold">/5.0</span></h2>
+                        <span class="text-xs font-bold text-green-600">😊 Sangat Puas</span>
+                    </div>
+                </div>
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div class="w-10 h-10 bg-purple-50 text-purple-500 rounded-full flex items-center justify-center text-lg mb-6">🤍</div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-2">Skor Dominan</p>
+                        <h2 class="text-4xl font-black text-gray-800 mb-2">5.0</h2>
+                        <span class="text-xs font-medium text-gray-500">Mode pada 78% data</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm mb-8">
+                <div class="mb-6">
+                    <h3 class="font-bold text-gray-800 text-lg">Distribusi Frekuensi Jawaban</h3>
+                    <p class="text-xs text-gray-400 mt-1">Jumlah responden yang memilih tiap skala (1-5) per aspek. n = 1,284</p>
+                </div>
+                <div class="relative w-full h-[300px]">
+                    <canvas id="frekuensiJawabanChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm overflow-x-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-gray-800 text-lg">Statistik Terperinci per Pertanyaan</h3>
+                    <span class="text-[10px] text-gray-400 font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-gray-300"></span> Diperbarui 2 jam yang lalu</span>
+                </div>
+                <table class="w-full analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Pertanyaan</th>
+                            <th>Dimensi</th>
+                            <th>Mean</th>
+                            <th>Median</th>
+                            <th>SD</th>
+                            <th class="text-right">Prob. Kepuasan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Konselor mendengarkan dengan penuh perhatian</td>
+                            <td><span class="bg-blue-50 text-brand-blue px-2.5 py-1 rounded-md text-[10px] font-bold">Dimensi A</span></td>
+                            <td>4.85</td>
+                            <td>5</td>
+                            <td>0.12</td>
+                            <td class="text-right font-bold text-green-600">97.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Konselor memahami perasaan saya dengan baik</td>
+                            <td><span class="bg-blue-50 text-brand-blue px-2.5 py-1 rounded-md text-[10px] font-bold">Dimensi A</span></td>
+                            <td>4.75</td>
+                            <td>5</td>
+                            <td>0.15</td>
+                            <td class="text-right font-bold text-green-600">95.1%</td>
+                        </tr>
+                        <tr>
+                            <td>Penjelasan konselor mudah dipahami</td>
+                            <td><span class="bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-md text-[10px] font-bold">Dimensi B</span></td>
+                            <td>4.50</td>
+                            <td>5</td>
+                            <td>0.25</td>
+                            <td class="text-right font-bold text-green-600">92.4%</td>
+                        </tr>
+                        <tr>
+                            <td>Solusi yang diberikan relevan dengan masalah</td>
+                            <td><span class="bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-md text-[10px] font-bold">Dimensi B</span></td>
+                            <td>4.35</td>
+                            <td>4</td>
+                            <td>0.33</td>
+                            <td class="text-right font-bold text-green-600">88.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Komunikasi berjalan dua arah dengan lancar</td>
+                            <td><span class="bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-md text-[10px] font-bold">Dimensi B</span></td>
+                            <td>4.45</td>
+                            <td>4</td>
+                            <td>0.28</td>
+                            <td class="text-right font-bold text-green-600">91.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Konselor bersikap profesional sepanjang sesi</td>
+                            <td><span class="bg-purple-50 text-purple-600 px-2.5 py-1 rounded-md text-[10px] font-bold">Dimensi C</span></td>
+                            <td>4.92</td>
+                            <td>5</td>
+                            <td>0.08</td>
+                            <td class="text-right font-bold text-green-600">98.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Suasana sesi membuat saya merasa nyaman</td>
+                            <td><span class="bg-purple-50 text-purple-600 px-2.5 py-1 rounded-md text-[10px] font-bold">Dimensi C</span></td>
+                            <td>4.88</td>
+                            <td>5</td>
+                            <td>0.10</td>
+                            <td class="text-right font-bold text-green-600">97.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Kerahasiaan informasi dijaga dengan baik</td>
+                            <td><span class="bg-purple-50 text-purple-600 px-2.5 py-1 rounded-md text-[10px] font-bold">Dimensi C</span></td>
+                            <td>4.95</td>
+                            <td>5</td>
+                            <td>0.05</td>
+                            <td class="text-right font-bold text-green-600">99.1%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <hr class="border-gray-100 border-2 rounded-full">
+
+        <section>
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-gray-900">Kualitas Penggunaan WEB</h2>
+                <p class="text-xs text-gray-500 mt-1">Fluktuasi nilai rata-rata per minggu</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm"><div class="w-8 h-8 bg-blue-50 text-brand-blue rounded-full flex justify-center items-center mb-4 text-xs">👥</div><p class="text-[9px] text-gray-400 font-bold tracking-widest uppercase mb-1">Total Responden</p><div class="flex items-baseline gap-2"><h2 class="text-2xl font-black text-gray-800">1,284</h2><span class="text-[10px] font-bold text-green-500">+12%</span></div></div>
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm"><div class="w-8 h-8 bg-green-50 text-green-600 rounded-full flex justify-center items-center mb-4 text-xs">★</div><p class="text-[9px] text-gray-400 font-bold tracking-widest uppercase mb-1">Rata-rata Skor (Mean)</p><div class="flex items-baseline gap-2"><h2 class="text-2xl font-black text-gray-800">4.62</h2><span class="text-[10px] font-bold text-green-500">+0.4</span></div></div>
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm"><div class="w-8 h-8 bg-purple-50 text-purple-500 rounded-full flex justify-center items-center mb-4 text-xs">📊</div><p class="text-[9px] text-gray-400 font-bold tracking-widest uppercase mb-1">Skor Dominan (Median)</p><div class="flex items-baseline gap-2"><h2 class="text-2xl font-black text-gray-800">5.00</h2><span class="text-[10px] font-bold text-gray-400">Stabil</span></div></div>
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm"><div class="w-8 h-8 bg-rose-50 text-rose-500 rounded-full flex justify-center items-center mb-4 text-xs">🎯</div><p class="text-[9px] text-gray-400 font-bold tracking-widest uppercase mb-1">Konsistensi Jawaban</p><div class="flex items-baseline gap-2"><h2 class="text-2xl font-black text-gray-800">0.32</h2><span class="text-[10px] font-bold text-gray-400">Sd. Dev</span></div></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                
+                <div class="md:col-span-2 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between h-[320px]">
+                    <div class="flex justify-between items-start mb-4">
+                        <div><h3 class="font-bold text-gray-800 text-lg">Tren Kualitas Layanan</h3><p class="text-xs text-gray-400 mt-1">Fluktuasi nilai rata-rata per minggu</p></div>
+                        <div class="flex items-center gap-2 text-xs font-semibold text-gray-500"><span class="w-2.5 h-2.5 rounded-full bg-brand-blue"></span> Mean Skor</div>
+                    </div>
+                    <div class="relative w-full flex-1 min-h-0">
+                        <canvas id="trenLayananChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-brand-dark p-8 rounded-3xl text-white flex flex-col justify-between h-[320px] relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+                    <div><h3 class="font-bold text-lg">Peluang Rekomendasi</h3><p class="text-xs text-blue-200 mt-1">Persentase loyalitas pengguna</p></div>
+                    <div class="relative flex justify-center items-center my-4 h-36">
+                        <canvas id="rekomendasiChart"></canvas>
+                        <div class="absolute flex flex-col items-center pointer-events-none">
+                            <span class="text-3xl font-black text-brand-green">88%</span><span class="text-[8px] tracking-widest uppercase text-white/70">"YA"</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-[10px] uppercase tracking-wider font-semibold text-blue-100">
+                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-brand-green"></span> Direkomendasikan</span>
+                        <span class="flex items-center gap-1.5 text-white/50"><span class="w-1.5 h-1.5 rounded-full bg-white/20"></span> Tidak</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-100 shadow-sm p-8 rounded-3xl mb-8">
+                <h3 class="font-bold text-gray-800 text-lg">Distribusi Frekuensi (Skala 1–5)</h3>
+                <p class="text-xs text-gray-400 mt-1 mb-8">Kategori: Clarity, Usability, Aesthetics</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <div>
+                        <h4 class="text-xs font-bold text-brand-blue tracking-widest uppercase mb-4">Kejelasan Web</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">5</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[83%]"></div></div><span class="w-6 text-right text-gray-500">83%</span></div>
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">4</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[12%]"></div></div><span class="w-6 text-right text-gray-500">12%</span></div>
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">3</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[3%]"></div></div><span class="w-6 text-right text-gray-500">3%</span></div>
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">2</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[1%]"></div></div><span class="w-6 text-right text-gray-500">1%</span></div>
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">1</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[1%]"></div></div><span class="w-6 text-right text-gray-500">1%</span></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-brand-blue tracking-widest uppercase mb-4">Kemudahan Web</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">5</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[72%]"></div></div><span class="w-6 text-right text-gray-500">72%</span></div>
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">4</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[22%]"></div></div><span class="w-6 text-right text-gray-500">22%</span></div>
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">3</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[5%]"></div></div><span class="w-6 text-right text-gray-500">5%</span></div>
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">2</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[1%]"></div></div><span class="w-6 text-right text-gray-500">1%</span></div>
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">1</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[0%]"></div></div><span class="w-6 text-right text-gray-500">0%</span></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-brand-blue tracking-widest uppercase mb-4">Daya Tarik</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">5</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[91%]"></div></div><span class="w-6 text-right text-gray-500">91%</span></div>
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">4</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[6%]"></div></div><span class="w-6 text-right text-gray-500">6%</span></div>
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">3</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[2%]"></div></div><span class="w-6 text-right text-gray-500">2%</span></div>
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">2</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[1%]"></div></div><span class="w-6 text-right text-gray-500">1%</span></div>
+                            <div class="flex items-center gap-3 text-xs"><span class="w-2 font-bold text-gray-600 text-right">1</span><div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[0%]"></div></div><span class="w-6 text-right text-gray-500">0%</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm overflow-x-auto mb-16">
+                <h3 class="font-bold text-gray-800 text-lg mb-6">Detail Pertanyaan & Statistik</h3>
+                <table class="w-full analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Pertanyaan</th>
+                            <th>Mean</th>
+                            <th>Median</th>
+                            <th>Std. Deviasi</th>
+                            <th class="text-right">Probabilitas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Seberapa mudah navigasi aplikasi Polimedia Peer Counselor?</td>
+                            <td>4.82</td>
+                            <td>5.0</td>
+                            <td>0.21</td>
+                            <td class="text-right"><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold">94%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Apakah visual interface membantu ketenangan Anda?</td>
+                            <td>4.91</td>
+                            <td>5.0</td>
+                            <td>0.15</td>
+                            <td class="text-right"><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold">98%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Kejelasan informasi dan status konselor.</td>
+                            <td>4.45</td>
+                            <td>4.5</td>
+                            <td>0.42</td>
+                            <td class="text-right"><span class="bg-blue-100 text-brand-blue px-3 py-1 rounded-full text-[10px] font-bold">81%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Respon sistem saat memulai sesi chat.</td>
+                            <td>4.30</td>
+                            <td>4.0</td>
+                            <td>0.51</td>
+                            <td class="text-right"><span class="bg-blue-100 text-brand-blue px-3 py-1 rounded-full text-[10px] font-bold">78%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="w-full text-center pb-8 pt-4">
+        <p class="text-[10px] text-gray-400 font-medium mb-3">© 2026 Polimedia Peer Counselor. Breathe deeply.</p>
+        <div class="flex justify-center gap-6 text-[10px] text-gray-400">
+            <a href="#" class="hover:text-brand-blue">Privacy Policy</a>
+            <a href="#" class="hover:text-brand-blue">Terms of Care</a>
+            <a href="#" class="hover:text-brand-blue">Support</a>
+        </div>
+    </footer>
+
+    <script>
+        // Variabel global agar chart bisa di-update dari luar
+        let trenChartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // 1. CHART GROUPED BAR (Kualitas Konselor - Distribusi Frekuensi Jawaban)
+            const ctxGrouped = document.getElementById('frekuensiJawabanChart').getContext('2d');
+            new Chart(ctxGrouped, {
+                type: 'bar',
+                data: {
+                    labels: ['Empati', 'Komunikasi', 'Profesionalisme'],
+                    datasets: [
+                        { label: 'Skala 1', data: [10, 15, 5], backgroundColor: '#FCA5A5', borderRadius: 4 }, // Merah muda
+                        { label: 'Skala 2', data: [20, 25, 10], backgroundColor: '#F87171', borderRadius: 4 }, // Merah
+                        { label: 'Skala 3', data: [80, 120, 60], backgroundColor: '#FBBF24', borderRadius: 4 }, // Kuning
+                        { label: 'Skala 4', data: [320, 280, 210], backgroundColor: '#86EFAC', borderRadius: 4 }, // Hijau muda
+                        { label: 'Skala 5', data: [854, 844, 999], backgroundColor: '#4ADE80', borderRadius: 4 }  // Hijau tua
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+                    },
+                    scales: {
+                        y: { display: false, grid: { display: false } },
+                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#6B7280', font: { size: 11, weight: '500' } } }
+                    }
+                }
+            });
+
+            // 2. CHART BAR TUNGGAL (Web - Tren Kualitas Layanan)
+            const ctxBar = document.getElementById('trenLayananChart').getContext('2d');
+            trenChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10'],
+                    datasets: [{
+                        label: 'Mean Skor',
+                        data: [60, 40, 75, 65, 90, 85, 95, 80, 70, 88],
+                        backgroundColor: '#E0F2FE',
+                        hoverBackgroundColor: '#00668F',
+                        borderRadius: 4,
+                        barThickness: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { display: false, min: 0, max: 100 },
+                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#9CA3AF', font: { size: 10 } } }
+                    }
+                }
+            });
+
+            // 3. CHART DONUT (Web - Peluang Rekomendasi)
+            const ctxDonut = document.getElementById('rekomendasiChart').getContext('2d');
+            new Chart(ctxDonut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Direkomendasikan', 'Tidak'],
+                    datasets: [{
+                        data: [88, 12],
+                        backgroundColor: ['#A3E635', 'rgba(255, 255, 255, 0.15)'],
+                        borderWidth: 0,
+                        cutout: '80%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    animation: { animateScale: true }
+                }
+            });
+        });
+
+        // FUNGSI UNTUK MENGGANTI TAMPILAN MINGGUAN / BULANAN
+        function setTimeView(view) {
+            const btnM = document.getElementById('btnMingguan');
+            const btnB = document.getElementById('btnBulanan');
+            
+            // Definisikan class CSS untuk status aktif dan tidak aktif
+            const activeClass = "px-5 py-1.5 rounded-full text-sm font-bold bg-brand-light text-brand-blue shadow-sm border border-gray-100 transition";
+            const inactiveClass = "px-5 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:text-brand-blue transition";
+
+            if (view === 'mingguan') {
+                // Ubah style tombol
+                btnM.className = activeClass;
+                btnB.className = inactiveClass;
+
+                // Ubah data grafik ke Mingguan
+                if (trenChartInstance) {
+                    trenChartInstance.data.labels = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10'];
+                    trenChartInstance.data.datasets[0].data = [60, 40, 75, 65, 90, 85, 95, 80, 70, 88];
+                    trenChartInstance.update();
+                }
+            } else {
+                // Ubah style tombol
+                btnB.className = activeClass;
+                btnM.className = inactiveClass;
+
+                // Ubah data grafik ke Bulanan (12 Bulan)
+                if (trenChartInstance) {
+                    trenChartInstance.data.labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+                    trenChartInstance.data.datasets[0].data = [80, 82, 85, 78, 92, 88, 95, 91, 94, 85, 89, 96];
+                    trenChartInstance.update(); // Memicu animasi ulang pada chart
+                }
+            }
+        }
+    </script>
+</body>
+</html>

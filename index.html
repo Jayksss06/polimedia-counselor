@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beranda - Polimedia Peer Counselor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#00668F',
+                        'brand-dark': '#004A6A',
+                        'hero-bg': '#EAF5F2', 
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+                        'script': ['Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        input:focus { outline: none; }
+        .search-shadow { box-shadow: 0 10px 30px -5px rgba(0, 102, 143, 0.08); }
+        .card-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
+        
+        /* Animasi Diagram Batang */
+        .bar-grow { transform-origin: bottom; animation: growUp 1.5s ease-out forwards; }
+        @keyframes growUp { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+        
+        .fade-in-text { opacity: 0; animation: fadeIn 0.5s ease-out 1.2s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-white font-sans text-gray-800 min-h-screen flex flex-col">
+
+    <nav class="flex justify-between items-center px-6 md:px-12 py-5 bg-white z-50 relative border-b border-gray-100">
+        <div class="text-brand-blue font-semibold italic text-lg tracking-wide">Polimedia Peer Counselor</div>
+        <div class="hidden md:flex gap-8 text-sm font-medium text-gray-500">
+            <a href="index.html" class="text-brand-blue font-bold border-b-2 border-brand-blue pb-1">Beranda</a>
+            <a href="riwayat.html" class="hover:text-brand-blue transition">Riwayat</a>
+            <a href="pilih-konselor.html" class="hover:text-gray-900 transition">Jelajahi</a>
+            <a href="tentang.html" class="hover:text-gray-900 transition">Tentang Kami</a>
+            <a href="dashboard.html" class="hover:text-gray-900 transition">Dashboard</a>
+        </div>
+        <div class="flex gap-4 text-gray-400 items-center">
+            <button class="hover:text-brand-blue transition text-xl">🔔</button>
+            <a href="login.html" title="Login / Register" class="w-8 h-8 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition cursor-pointer text-gray-400 hover:text-brand-blue overflow-hidden">
+                <!-- Avatar dinamis akan dimuat oleh api.js ke class ini jika user login -->
+                <img data-nav="avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" alt="User Avatar" class="w-full h-full object-cover">
+            </a>
+            <!-- Tombol Logout (Otomatis ditangani oleh api.js jika diklik) -->
+            <button data-action="logout" class="text-xs font-bold text-red-500 hover:underline hidden" id="btnLogout">Keluar</button>
+        </div>
+    </nav>
+
+    <main class="w-full flex-grow">
+
+        <div class="max-w-[1300px] mx-auto w-full px-4 md:px-6 mt-4">
+            <section class="bg-hero-bg rounded-[40px] px-8 py-16 md:px-16 md:pt-20 md:pb-32 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-96 h-96 bg-white opacity-40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+
+                <div class="relative z-10 max-w-3xl">
+                    <div class="inline-flex items-center gap-2 bg-[#D1F48D] text-green-900 px-4 py-1.5 rounded-full text-xs font-bold mb-6 tracking-wide">
+                        <span class="text-sm">🍃</span> KAMPUS MERDEKA
+                    </div>
+
+                    <h2 class="text-3xl md:text-4xl text-brand-blue font-script italic font-medium mb-2">konselor sebaya polimedia:</h2>
+                    <h1 class="text-4xl md:text-[56px] font-extrabold text-gray-900 tracking-tight leading-[1.1] mb-6">
+                        Kami siap mendengarkan<br>kalian
+                    </h1>
+
+                    <p class="text-gray-600 text-base md:text-lg max-w-2xl leading-relaxed mb-10">
+                        Ungkapkan pesan terpendammu melalui kami. Temukan ketenangan di setiap tarikan nafas, kalimat dan telinga yang peduli.
+                    </p>
+
+                    <div class="flex flex-col md:flex-row items-center bg-white rounded-full p-2 max-w-3xl search-shadow">
+                        <div class="flex-1 flex items-center px-4 w-full">
+                            <span class="text-blue-400 mr-3 text-lg">🔍</span>
+                            <input type="text" class="w-full py-3 text-sm text-gray-700 bg-transparent" placeholder="Cari apa saja yang selama ini membebanimu...">
+                        </div>
+                        <a href="pilih-konselor.html" class="w-full md:w-auto bg-brand-blue hover:bg-brand-dark text-white px-8 py-3.5 rounded-full font-bold text-sm transition flex items-center justify-center gap-2 mt-2 md:mt-0">
+                            Mulai Konseling <span>➔</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="max-w-[1200px] mx-auto w-full px-6 -mt-16 relative z-20 mb-24">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Kartu Total Responden -->
+                <div class="bg-white p-8 rounded-[30px] card-shadow border border-gray-100 flex flex-col justify-between h-[160px]">
+                    <div class="w-10 h-10 bg-[#EEF2FF] text-[#4F46E5] rounded-full flex items-center justify-center text-sm mb-2">👥</div>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <h3 class="text-4xl font-black text-gray-900 leading-none mb-1" data-stat="total-responden">0</h3>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total Responden</p>
+                        </div>
+                        <span class="bg-[#D9F99D] text-green-800 text-[10px] font-bold px-3 py-1 rounded-full mb-1">+12%</span>
+                    </div>
+                </div>
+
+                <!-- Kartu Rata-rata Skor -->
+                <div class="bg-white p-8 rounded-[30px] card-shadow border border-gray-100 flex flex-col justify-between h-[160px]">
+                    <div class="w-10 h-10 bg-[#DCFCE7] text-[#16A34A] rounded-full flex items-center justify-center text-sm mb-2">★</div>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="flex items-baseline gap-1 mb-1">
+                                <h3 class="text-4xl font-black text-gray-900 leading-none" data-stat="rata-skor">0.0</h3>
+                                <span class="text-xs font-bold text-gray-400">/ 5.0</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Rata-rata Skor</p>
+                        </div>
+                        <span class="bg-[#E0F2FE] text-[#0284C7] text-[10px] font-bold px-3 py-1 rounded-full mb-1">Excellent</span>
+                    </div>
+                </div>
+
+                <!-- Kartu Rekomendasi -->
+                <div class="bg-white p-8 rounded-[30px] card-shadow border border-gray-100 flex flex-col justify-between h-[160px]">
+                    <div class="w-10 h-10 bg-[#F3E8FF] text-[#9333EA] rounded-full flex items-center justify-center text-sm mb-2">🛡️</div>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <h3 class="text-4xl font-black text-gray-900 leading-none mb-1" data-stat="persen-rekomendasi">0%</h3>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Persentase Rekomendasi</p>
+                        </div>
+                        <span class="bg-[#E0F2FE] text-[#0284C7] text-[10px] font-bold px-3 py-1 rounded-full mb-1">Trust</span>
+                    </div>
+                </div>            
+            </div>
+        </div>
+
+        <section class="max-w-[1200px] mx-auto px-6 mb-24">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+                <div>
+                    <h2 class="text-[28px] font-extrabold text-gray-900 mb-1">Kamu tidak sendirian</h2>
+                    <p class="text-gray-500 text-sm">Cerita dari mereka yang telah menemukan ketenangan saat konseling.</p>
+                </div>
+                <a href="#" class="text-sm font-bold text-brand-blue hover:text-brand-dark transition">Lihat semua (10+) ></a>
+            </div>
+
+            <!-- CONTAINER ULASAN DINAMIS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-section="ulasan">
+                <div class="col-span-3 text-center py-10 text-gray-400 text-sm">Memuat cerita...</div>
+            </div>
+        </section>
+
+        <section class="max-w-[1200px] mx-auto px-6 mb-24">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-[28px] font-extrabold text-gray-900 mb-1">Topik Konseling</h2>
+                    <p class="text-gray-500 text-sm">Pilih kategori yang paling sesuai dengan perasaanmu saat ini.</p>
+                </div>
+                <a href="pilih-konselor.html" class="text-sm font-bold text-brand-blue hover:text-brand-dark transition hidden md:block">Lihat semua topik ></a>
+            </div>
+
+            <!-- CONTAINER TOPIK DINAMIS -->
+            <div class="space-y-6" data-section="topik-stats">
+                <div class="text-center py-4 text-gray-400 text-sm">Memuat topik populer...</div>
+            </div>
+        </section>
+
+        <section class="max-w-[1200px] mx-auto px-6 mb-20">
+            <h2 class="text-[28px] font-extrabold text-gray-900 mb-1">Konselor Terbaik Bulan Ini</h2>
+            <p class="text-gray-500 text-sm mb-6">Berdasarkan tingkat kepuasan dan ketersediaan waktu untuk kawan sebaya.</p>
+
+            <div class="bg-[#F8FAFC] rounded-[40px] pt-8 pb-12 border border-gray-100">
+                
+                <div class="hidden md:flex text-[10px] font-bold text-gray-400 uppercase tracking-widest px-12 pb-4">
+                    <div class="w-1/3">Konselor</div>
+                    <div class="w-1/4">Jurusan</div>
+                    <div class="w-1/4">Kepuasan</div>
+                    <div class="w-1/6 text-right">Status</div>
+                </div>
+
+                <!-- CONTAINER DAFTAR KONSELOR DINAMIS -->
+                <div class="px-6 md:px-10 space-y-4 mb-12" data-section="konselor-terbaik">
+                    <div class="text-center py-8 text-gray-400 text-sm">Memuat data konselor...</div>
+                </div>
+
+                <!-- BAGIAN STATISTIK KEPUASAN -->
+                <div class="px-6 md:px-10">
+                    <h2 class="text-2xl font-extrabold text-gray-900 mb-1">Kepuasan Pengguna</h2>
+                    <p class="text-gray-500 text-sm mb-6">Pantau kenyamanan dan kualitas pengalaman sesi Anda secara keseluruhan.</p>
+
+                    <div class="bg-white rounded-[20px] p-8 mb-6 shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Rata-rata Minggu Ini</p>
+                            <div class="flex items-baseline gap-2 mb-2">
+                                <h3 class="text-4xl font-black text-gray-900" data-stat="rata-skor-minggu">4.9</h3>
+                                <span class="text-sm font-bold text-gray-400">/ 5.0</span>
+                            </div>
+                            <span class="text-xs font-semibold text-[#0284C7] flex items-center gap-1">Peringkat stabil dan positif</span>
+                        </div>
+                        <div class="w-14 h-14 bg-[#004A6A] text-white rounded-full flex items-center justify-center text-xl shadow-md">★</div>
+                    </div>
+
+                    <div class="bg-white rounded-[20px] p-8 mb-6 shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-center mb-8">
+                            <h4 class="font-bold text-gray-800 text-sm">Tren Mingguan</h4>
+                            <span class="text-[10px] text-gray-400 font-bold flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#0F172A]"></span> Skor Kepuasan
+                            </span>
+                        </div>
+                        
+                        <div class="relative h-48 w-full mt-4">
+                            <!-- Canvas Chart.js dibiarkan kosong, api.js akan merendernya otomatis -->
+                            <canvas id="trenChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-[#EEF2FF] p-6 rounded-2xl">
+                            <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
+                                <span class="text-blue-500">🛡️</span> Kualitas Koneksi
+                            </h4>
+                            <p class="text-xs text-gray-600 leading-relaxed">Anda secara konsisten memberikan rating tinggi untuk aspek komunikasi empati dengan konselor.</p>
+                        </div>
+                        <div class="bg-[#EEF2FF] p-6 rounded-2xl">
+                            <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
+                                <span class="text-blue-500">⏱️</span> Ketepatan Waktu
+                            </h4>
+                            <p class="text-xs text-gray-600 leading-relaxed">98% sesi dimulai tepat waktu, memberikan Anda ketenangan dalam memulai sesi terapi.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="w-full bg-white pt-16 pb-8 px-6 md:px-12">
+        <div class="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            <div>
+                <h2 class="text-brand-blue font-semibold italic text-xl tracking-wide mb-4">Polimedia Peer Counselor</h2>
+                <p class="text-sm text-gray-500 leading-relaxed pr-8">Sebuah inisiatif mahasiswa untuk mahasiswa. Kami ada untuk mendengar, memahami, dan berbagi beban di saat kau membutuhkannya.</p>
+                <div class="flex gap-3 mt-6">
+                    <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-brand-blue hover:text-white transition">in</a>
+                    <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-brand-blue hover:text-white transition">ig</a>
+                </div>
+            </div>
+            <div class="flex flex-col gap-3">
+                <h4 class="font-bold text-gray-900 mb-2 uppercase tracking-widest text-xs">Akses Cepat</h4>
+                <a href="#" class="text-sm text-gray-500 hover:text-brand-blue transition">Tentang Kami</a>
+                <a href="#" class="text-sm text-gray-500 hover:text-brand-blue transition">Daftar Konselor</a>
+                <a href="#" class="text-sm text-gray-500 hover:text-brand-blue transition">Kebijakan Privasi</a>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-900 mb-4 uppercase tracking-widest text-xs">Lokasi Kami</h4>
+                <p class="text-sm text-gray-500 leading-relaxed">
+                    Politeknik Negeri Media Kreatif<br>
+                    Jl. Srengseng Sawah Raya, Jagakarsa<br>
+                    Jakarta Selatan
+                </p>
+            </div>
+        </div>
+        <div class="max-w-[1200px] mx-auto text-center border-t border-gray-100 pt-8">
+            <p class="text-xs text-gray-400 font-medium">© 2026 Polimedia Peer Counselor. Breathe deeply. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- PEMANGGILAN API BACKEND -->
+    <script src="js/api.js"></script>
+
+    <script>
+        // Logika untuk menampilkan tombol logout jika user sudah login
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('polimedia_token')) {
+                const btnLogout = document.getElementById('btnLogout');
+                if (btnLogout) btnLogout.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

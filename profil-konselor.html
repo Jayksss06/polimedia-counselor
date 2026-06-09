@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Konselor - Polimedia Peer Counselor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#00668F',
+                        'brand-dark': '#004A6A',
+                        'brand-light': '#F4F7F9',
+                        'brand-green': '#4CAF50',
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    </style>
+</head>
+<body class="bg-brand-light font-sans text-gray-800 min-h-screen flex flex-col items-center py-10">
+
+    <div class="w-full max-w-5xl flex justify-between items-center mb-8 px-4">
+        <a href="index.html" class="text-brand-blue font-medium flex items-center gap-2 hover:text-brand-dark transition">
+            <span>←</span> Kembali ke Halaman Utama
+        </a>
+        <div class="text-brand-blue font-semibold italic text-xl tracking-wide">Polimedia Peer Counselor</div>
+        <div class="flex gap-3 text-gray-400 items-center">
+            <button class="hover:text-brand-blue transition">🔔</button>
+            <div class="w-8 h-8 bg-slate-300 rounded-full overflow-hidden">
+                </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-5xl bg-white p-8 md:p-12 rounded-[40px] shadow-sm border border-gray-100">
+        
+        <div class="w-full bg-gradient-to-r from-brand-blue to-brand-dark rounded-3xl p-8 md:p-10 text-white flex flex-col md:flex-row justify-between items-start md:items-end mb-12 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-full bg-white opacity-10 skew-x-12 translate-x-20"></div>
+            
+            <div class="relative z-10">
+                <span class="inline-block bg-green-400 text-brand-dark px-3 py-1 rounded-full text-[11px] font-extrabold mb-4 uppercase tracking-wider">
+                    Konselor Terverifikasi
+                </span>
+                <h1 class="text-4xl font-bold mb-2">Siti Nurhaliza</h1>
+                <p class="text-blue-100 font-medium">12210456 • Semester 6 • Desain Grafis</p>
+            </div>
+
+            <div class="relative z-10 mt-6 md:mt-0 text-left md:text-right">
+                <div class="text-green-400 text-2xl tracking-widest mb-1">★★★★☆</div>
+                <p class="text-sm text-blue-100">4.8 / 5.0 (42 Sesi Berhasil)</p>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-12">
+            
+            <div class="flex flex-col h-full">
+                <div class="flex items-center gap-2 mb-6">
+                    <span class="text-brand-blue text-xl">💡</span>
+                    <h2 class="text-xl font-bold text-gray-800">Kasus yang pernah ditangani</h2>
+                </div>
+
+                <div class="space-y-4 flex-grow">
+                    <div class="bg-slate-50 p-5 rounded-2xl border-l-4 border-brand-blue">
+                        <h3 class="font-bold text-brand-blue mb-2">Kecemasan Akademik</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">Membantu mahasiswa tingkat akhir mengatasi 'procrastination' dan kecemasan menghadapi tugas akhir melalui teknik manajemen waktu dan mindfulness sederhana.</p>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-2xl border-l-4 border-brand-green">
+                        <h3 class="font-bold text-brand-green mb-2">Adaptasi Lingkungan Kampus</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">Mendampingi mahasiswa baru yang mengalami kesulitan bersosialisasi dan rasa rindu rumah (homesickness) di semester pertama perkuliahan.</p>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-2xl border-l-4 border-indigo-400">
+                        <h3 class="font-bold text-indigo-500 mb-2">Burnout Organisasi</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">Diskusi mengenai keseimbangan antara kesibukan organisasi BEM/Hima dengan prestasi akademik yang mulai menurun.</p>
+                    </div>
+                </div>
+
+                <a href="pendaftaran.html" class="w-full bg-brand-blue hover:bg-brand-dark text-white py-4 rounded-2xl font-bold text-lg mt-8 transition shadow-lg flex justify-center items-center gap-2">
+                    <span>📅</span> Buat Janji Temu
+                </a>
+            </div>
+
+            <div>
+                <div class="flex items-center gap-2 mb-6">
+                    <span class="text-brand-green text-xl">💬</span>
+                    <h2 class="text-xl font-bold text-gray-800">Ulasan dari Pengguna</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="text-brand-green text-xs">★★★★★</div>
+                            <span class="text-xs text-gray-400">2 hari yang lalu</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-4 leading-relaxed">"Sangat pendengar yang baik. Tidak menghakimi sama sekali saat saya cerita tentang masalah keluarga. Terima kasih Kak Siti!"</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 bg-slate-200 rounded-full"></div>
+                            <span class="text-xs font-medium text-gray-500">Anonim (Mahasiswa Animasi)</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="text-brand-green text-xs">★★★★☆</div>
+                            <span class="text-xs text-gray-400">1 minggu yang lalu</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-4 leading-relaxed">"Solusi yang diberikan sangat praktis untuk dikerjakan. Saya jadi lebih tenang menghadapi sidang semester depan."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 bg-slate-200 rounded-full"></div>
+                            <span class="text-xs font-medium text-gray-500">Anonim (Mahasiswa Penerbitan)</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="text-brand-green text-xs">★★★★★</div>
+                            <span class="text-xs text-gray-400">3 minggu yang lalu</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-4 leading-relaxed">"Ramah dan asik diajak ngobrol. Berasa curhat sama temen sendiri."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 bg-slate-200 rounded-full"></div>
+                            <span class="text-xs font-medium text-gray-500">Anonim (Mahasiswa Broadcasting)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-6">
+                    <a href="#" class="text-brand-blue text-sm font-semibold hover:underline">Lihat 39 ulasan lainnya</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="mt-8 text-center text-brand-blue opacity-50 font-script italic text-lg">
+        "Kamu tidak sendirian dalam perjalanan ini."
+    </div>
+
+</body>
+</html>

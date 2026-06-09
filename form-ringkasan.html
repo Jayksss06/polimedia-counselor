@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ringkasan Sesi - Counselor Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#00668F',
+                        'brand-dark': '#004A6A',
+                        'bg-light': '#F8FAFC',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-bg-light font-sans text-gray-800 min-h-screen">
+
+    <nav class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-12 sticky top-0 z-50">
+        <div class="text-brand-blue font-semibold italic text-lg tracking-wide">Polimedia Peer Counselor</div>
+        <div class="flex items-center gap-4">
+            <span class="text-xs font-bold text-gray-400">SESSION ID: #210342</span>
+            <div class="w-9 h-9 rounded-full bg-gray-200 overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Siti" alt="Profile" class="w-full h-full object-cover">
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto py-12 px-6">
+        
+        <div class="mb-10">
+            <h4 class="text-brand-blue font-bold text-xs uppercase tracking-widest mb-2">Lumina Wellness</h4>
+            <h1 class="text-3xl font-extrabold text-gray-900">Ringkasan Sesi: Catat perkembangan temanmu.</h1>
+            <p class="text-gray-500 text-sm mt-2">Dokumentasi yang akurat membantu kita memberikan dukungan yang konsisten dan berkelanjutan bagi setiap mahasiswa.</p>
+        </div>
+
+        <form action="counselor-dashboard.html" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <div class="md:col-span-2 space-y-6">
+                
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Kategori Masalah Utama</label>
+                    <select class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-blue transition text-sm text-gray-700">
+                        <option>Akademik & Perkuliahan</option>
+                        <option>Kecemasan & Mental</option>
+                        <option>Masalah Interpersonal</option>
+                        <option>Pengembangan Diri</option>
+                    </select>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Ringkasan Diskusi</label>
+                    <textarea rows="4" placeholder="Ceritakan poin-poin penting dari percakapan hari ini..." class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-blue transition text-sm text-gray-700"></textarea>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Rekomendasi Tindakan</label>
+                    <textarea rows="3" placeholder="Langkah apa yang disepakati untuk dilakukan selanjutnya?" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-blue transition text-sm text-gray-700"></textarea>
+                </div>
+
+            </div>
+
+            <div class="space-y-6">
+                
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Eskalasi & Tindak Lanjut</label>
+                    <div class="flex items-start gap-3 mb-4">
+                        <input type="checkbox" id="eskalasi" class="mt-1 w-4 h-4 text-brand-blue border-gray-300 rounded focus:ring-brand-blue">
+                        <label for="eskalasi" class="text-sm font-semibold text-gray-700">Perlu Tindak Lanjut Profesional</label>
+                    </div>
+                    <p class="text-[10px] text-gray-400 leading-relaxed bg-gray-50 p-4 rounded-xl">Eskalasi ke Dosen Pembimbing, Akademik atau Psikolog Kampus jika masalah membutuhkan penanganan ahli.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Catatan Pribadi</label>
+                    <p class="text-[9px] text-brand-blue mb-2 font-bold uppercase">Hanya dapat dilihat oleh Anda & Admin sistem.</p>
+                    <textarea rows="4" placeholder="Tuliskan pengamatan internal Anda di sini..." class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-blue transition text-sm text-gray-700"></textarea>
+                </div>
+
+            </div>
+
+            <div class="md:col-span-3 flex flex-col items-center mt-6">
+                <p class="text-[10px] text-gray-400 font-bold mb-4 flex items-center gap-2">
+                    <span class="text-green-500">✔</span> Salinan ringkasan ini akan dikirimkan secara otomatis ke dashboard mahasiswa terkait
+                </p>
+                <a href="counselor-history.html" class="bg-brand-blue hover:bg-brand-dark text-white px-12 py-4 rounded-full font-bold text-sm transition shadow-lg flex items-center gap-2">
+                            Simpan & Kirim ke Mahasiswa<span>➔</span>
+                        </a>
+            </div>
+
+        </form>
+
+    </main>
+
+</body>
+</html>

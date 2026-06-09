@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counselor Dashboard - Polimedia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#00668F',
+                        'brand-dark': '#004A6A',
+                        'bg-light': '#F4F7F9',
+                        'sidebar-active': '#E0F2FE',
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        /* Custom Toggle Switch CSS */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #10B981;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #10B981;
+        }
+        
+        /* Hide scrollbar for clean UI */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-bg-light font-sans text-gray-800 h-screen flex overflow-hidden">
+
+    <aside class="w-64 bg-white border-r border-gray-100 flex flex-col justify-between hidden md:flex z-20 shadow-sm">
+        <div>
+            <div class="h-20 flex items-center px-8 border-b border-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center text-white font-bold text-sm">P</div>
+                    <div>
+                        <h1 class="text-brand-blue font-bold text-sm leading-tight">Polimedia</h1>
+                        <p class="text-[10px] text-gray-400">Counselor Portal</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-2 mt-4">
+                <a href="counselor-dashboard.html" class="flex items-center gap-3 px-4 py-3 bg-sidebar-active text-brand-blue rounded-xl font-semibold text-sm border-l-4 border-brand-blue">
+                    <span>⊞</span> Dashboard
+                </a>
+                <a href="counselor-queue.html" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium text-sm transition">
+                    <span>⌛</span> Active Queue
+                </a>
+                <a href="counselor-chat.html" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium text-sm transition">
+                    <span>💬</span> Chat Hub
+                </a>
+                <a href="counselor-history.html" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium text-sm transition">
+                    <span>🕒</span> Session History
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-6">
+            <button class="w-full bg-brand-blue hover:bg-brand-dark text-white py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 shadow-sm">
+                <span>+</span> Start New Session
+            </button>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-8 z-10 sticky top-0">
+            <div class="flex items-center bg-gray-50 rounded-full px-4 py-2 w-96 ">
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div class="hidden lg:flex gap-6 text-sm font-medium text-gray-500 mr-4">
+                    <a href="#" class="text-brand-blue font-bold border-b-2 border-brand-blue pb-1">Overview</a>
+                    <a href="#" class="hover:text-gray-800 transition">Analytics</a>
+                    <a href="#" class="hover:text-gray-800 transition">Reports</a>
+                </div>
+                <button class="text-gray-400 hover:text-gray-600">🔔</button>
+                <button class="text-gray-400 hover:text-gray-600">⚙️</button>
+                <div class="w-9 h-9 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Siti" alt="Counselor Profile" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto no-scrollbar p-8">
+            <div class="max-w-6xl mx-auto space-y-6">
+
+                <div class="bg-white rounded-3xl p-6 flex items-center justify-between shadow-sm border border-gray-50">
+                    <div class="flex items-center gap-6">
+                        <div class="w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden border border-gray-100">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Siti" alt="Profile" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-[#DCFCE7] text-green-700 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Online</span>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-900">Siti Nurhaliza</h2>
+                            <p class="text-xs text-gray-500 mt-1">2103421045 • Teknik Grafika</p>
+                            <div class="flex items-center gap-1 mt-2 text-xs font-bold text-gray-700">
+                                <span class="text-[#F59E0B]">★★★★★</span> <span class="text-gray-400 font-medium ml-1">(48)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-50 flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Sesi</p>
+                            <div class="w-8 h-8 bg-blue-50 text-brand-blue rounded-full flex items-center justify-center text-xs">👥</div>
+                        </div>
+                        <h3 class="text-4xl font-black text-gray-900 mb-4">42</h3>
+                        <p class="text-xs font-semibold text-green-600 flex items-center gap-1">📈 +12% dibanding bulan lalu</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-50 flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Rata-rata Rating</p>
+                            <div class="w-8 h-8 bg-green-50 text-green-600 rounded-full flex items-center justify-center text-xs">🌟</div>
+                        </div>
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <h3 class="text-4xl font-black text-gray-900">4.8</h3>
+                            <span class="text-[#F59E0B] text-sm">★★★★★</span>
+                        </div>
+                        <p class="text-xs text-gray-500">95% Mahasiswa merasa sangat terbantu</p>
+                    </div>
+
+                    <div class="bg-brand-blue p-6 rounded-3xl shadow-sm flex flex-col justify-between text-white relative overflow-hidden transition-all duration-300">
+                        <div id="statusCard" class="bg-brand-blue p-6 rounded-3xl shadow-sm flex flex-col justify-between text-white relative overflow-hidden transition-all duration-300">
+                        <div class="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                        <p class="text-[10px] font-bold text-blue-200 uppercase tracking-widest mb-1 relative z-10">Status Saat Ini</p>
+                        <h3 id="statusText" class="text-2xl font-bold mb-6 relative z-10 leading-tight">Tersedia untuk Sesi</h3>
+                        
+                        <div class="flex justify-between items-center relative z-10 border-t border-white/20 pt-4 mt-auto">
+                            <span id="labelStatus" class="font-medium text-sm">Online</span>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="toggle" id="toggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 transition-transform duration-200 ease-in-out"/>
+                                <label for="toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-green-500 cursor-pointer"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-50">
+                        <div class="flex justify-between items-end mb-6">
+                            <h3 class="font-bold text-gray-900">Topik Permasalahan</h3>
+                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Bulan Ini</span>
+                        </div>
+                        <div class="space-y-5">
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-gray-700 mb-2"><span>Akademik</span><span class="text-brand-blue">65%</span></div>
+                                <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden"><div class="bg-brand-blue h-full w-[65%] rounded-full"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-gray-700 mb-2"><span>Interpersonal</span><span class="text-green-600">25%</span></div>
+                                <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden"><div class="bg-[#10B981] h-full w-[25%] rounded-full"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-gray-700 mb-2"><span>Kecemasan</span><span class="text-indigo-600">10%</span></div>
+                                <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden"><div class="bg-[#4F46E5] h-full w-[10%] rounded-full"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-50 flex items-center justify-between gap-6">
+                        <div class="relative w-32 h-32 flex-shrink-0">
+                            <canvas id="kepuasanChart"></canvas>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span class="text-2xl font-black text-gray-900">90%</span>
+                                <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Puas</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 mb-2">Tingkat Kepuasan</h3>
+                            <p class="text-xs text-gray-500 leading-relaxed mb-4">Dari total 42 sesi, 38 mahasiswa memberikan feedback positif terkait solusi yang diberikan.</p>
+                            <div class="flex items-center gap-4 text-[10px] font-bold text-gray-600">
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-600"></span> Sangat Puas</span>
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-200"></span> Cukup</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-end mb-4">
+                        <h3 class="text-lg font-bold text-gray-900">Aktivitas Terkini</h3>
+                        <a href="#" class="text-xs font-bold text-brand-blue hover:text-brand-dark">Lihat Semua History →</a>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-50 flex flex-col justify-between">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-blue-50 text-brand-blue rounded-full flex items-center justify-center text-xs font-bold">AN</div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-900 leading-tight">Andi Nasution</h4>
+                                    <p class="text-[10px] text-gray-400">15 menit yang lalu</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 italic mb-4">"Terima kasih kak, saya merasa jauh..."</p>
+                            <div class="flex justify-between items-center">
+                                <span class="bg-green-50 text-green-700 text-[9px] font-bold px-2 py-1 rounded uppercase">Completed</span>
+                                <button class="text-gray-300 hover:text-brand-blue text-sm">💬</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-50 flex flex-col justify-between">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">SP</div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-900 leading-tight">Siska Putri</h4>
+                                    <p class="text-[10px] text-gray-400">2 jam yang lalu</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 italic mb-4">"Butuh bantuan terkait KRS yang..."</p>
+                            <div class="flex justify-between items-center">
+                                <span class="bg-indigo-50 text-indigo-600 text-[9px] font-bold px-2 py-1 rounded uppercase">Follow-up</span>
+                                <button class="text-gray-300 hover:text-brand-blue text-sm">💬</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-50 flex flex-col justify-between">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center text-xs font-bold">RK</div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-900 leading-tight">Raka Kusuma</h4>
+                                    <p class="text-[10px] text-gray-400">4 jam yang lalu</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 italic mb-4">"Konsultasi terkait magang industri..."</p>
+                            <div class="flex justify-between items-center">
+                                <span class="bg-green-50 text-green-700 text-[9px] font-bold px-2 py-1 rounded uppercase">Completed</span>
+                                <button class="text-gray-300 hover:text-brand-blue text-sm">💬</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-8 border-t border-gray-200">
+                    <h2 class="text-2xl font-bold text-brand-blue italic mb-3">"Kebaikan yang kamu tabur hari ini, adalah ketenangan bagi mereka esok hari."</h2>
+                    <p class="text-sm text-gray-500 max-w-3xl leading-relaxed mb-6">Setiap sesi yang Anda jalankan bukan hanya sekedar formalitas, melainkan jembatan bagi mahasiswa Polimedia untuk meraih potensi terbaik mereka tanpa hambatan mental.</p>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggle = document.getElementById('toggle');
+        const statusCard = document.getElementById('statusCard');
+        const statusText = document.getElementById('statusText');
+        const labelStatus = document.getElementById('labelStatus');
+        const toggleLabel = document.querySelector('.toggle-label');
+
+        toggle.addEventListener('change', function() {
+            if (this.checked) {
+                // Saat ON (Online)
+                statusText.textContent = "Tersedia untuk Sesi";
+                labelStatus.textContent = "Online";
+                statusCard.classList.remove('status-offline');
+                statusCard.classList.remove('opacity-dim');
+                toggleLabel.classList.remove('bg-gray-400');
+                toggleLabel.classList.add('bg-green-500');
+            } else {
+                // Saat OFF (Offline)
+                statusText.textContent = "Sedang Offline";
+                labelStatus.textContent = "Offline";
+                statusCard.classList.add('status-offline');
+                statusCard.classList.add('opacity-dim');
+                toggleLabel.classList.remove('bg-green-500');
+                toggleLabel.classList.add('bg-gray-400');
+            }
+        });
+    });
+</script>
+</body>
+</html>

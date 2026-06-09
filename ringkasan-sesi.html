@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ringkasan Sesi - Polimedia Peer Counselor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#00668F',
+                        'brand-dark': '#004A6A',
+                        'brand-light': '#F8FAFC',
+                        'share-green': '#BAFCA2', /* Hijau cerah untuk kotak share */
+                        'btn-green': '#4D7C0F',   /* Hijau gelap untuk tombol */
+                        'light-blue-bg': '#F0F9FF',
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+                        'script': ['Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        textarea:focus { outline: none; border-color: #00668F; }
+        .shadow-soft { box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03); }
+        .shadow-glow { box-shadow: 0 10px 30px -10px rgba(77, 124, 15, 0.5); }
+    </style>
+</head>
+<body class="bg-brand-light font-sans text-gray-800 min-h-screen flex flex-col">
+
+    <nav class="flex justify-between items-center px-8 py-5 bg-white border-b border-gray-100 sticky top-0 z-50">
+        <a href="index.html" class="text-brand-blue text-sm font-medium flex items-center gap-2 hover:text-brand-dark transition">
+            <span class="text-lg">←</span> Kembali ke Halaman Utama
+        </a>
+        <div class="text-brand-blue font-semibold italic text-xl tracking-wide">Polimedia Peer Counselor</div>
+        <div class="flex gap-4 text-gray-400 items-center">
+            <button class="hover:text-brand-blue transition text-xl">🔔</button>
+            <div class="w-8 h-8 bg-gray-200 rounded-full overflow-hidden border border-gray-100">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" alt="User" class="w-full h-full object-cover">
+            </div>
+        </div>
+    </nav>
+
+    <header class="text-center mt-12 mb-10 px-4">
+        <h1 class="text-4xl md:text-[42px] font-bold text-brand-blue mb-3 tracking-tight">Sesi Kamu Telah Selesai. Ini Ringkasannya.</h1>
+        <p class="text-gray-500 text-sm">Setiap langkah kecil adalah kemenangan besar dalam perjalananmu.</p>
+    </header>
+
+    <main class="w-full max-w-[1100px] mx-auto px-6 mb-16">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <div class="bg-white rounded-[32px] p-8 shadow-soft border border-gray-50 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-[10px] font-bold text-brand-blue uppercase tracking-widest mb-6">Detail Sesi</h3>
+                    
+                    <p class="text-xs text-gray-400 mb-1">ID Sesi</p>
+                    <p class="font-bold text-gray-900 mb-5">#PMC-2023-0912</p>
+
+                    <p class="text-xs text-gray-400 mb-1">Durasi</p>
+                    <p class="font-bold text-gray-900 mb-5">45 Menit</p>
+
+                    <p class="text-xs text-gray-400 mb-1">Tanggal</p>
+                    <p class="font-bold text-gray-900 mb-8">24 Oktober 2023</p>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-gray-200 overflow-hidden border border-gray-100">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" alt="Kak Sarah" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 font-medium">Counselor</p>
+                        <p class="font-bold text-brand-blue">Kak Sarah</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-light-blue-bg rounded-[32px] p-8 border border-blue-50">
+                <h3 class="text-[10px] font-bold text-brand-blue uppercase tracking-widest mb-6">Topik Utama</h3>
+                <ul class="space-y-5">
+                    <li class="flex items-start gap-3">
+                        <div class="w-5 h-5 rounded-full border border-brand-blue flex items-center justify-center text-brand-blue mt-0.5 flex-shrink-0">
+                            <span class="text-xs">✓</span>
+                        </div>
+                        <span class="text-[15px] text-gray-700 leading-relaxed">Manajemen kecemasan sebelum ujian praktik.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-5 h-5 rounded-full border border-brand-blue flex items-center justify-center text-brand-blue mt-0.5 flex-shrink-0">
+                            <span class="text-xs">✓</span>
+                        </div>
+                        <span class="text-[15px] text-gray-700 leading-relaxed">Teknik grounding 5-4-3-2-1.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-5 h-5 rounded-full border border-brand-blue flex items-center justify-center text-brand-blue mt-0.5 flex-shrink-0">
+                            <span class="text-xs">✓</span>
+                        </div>
+                        <span class="text-[15px] text-gray-700 leading-relaxed">Validasi emosi terhadap beban tugas.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-light-blue-bg rounded-[32px] p-8 border border-blue-50 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-[10px] font-bold text-brand-blue uppercase tracking-widest mb-6">Catatan Konselor</h3>
+                    <p class="text-[15px] text-gray-700 leading-relaxed italic mb-8">
+                        "Kamu menunjukkan kemajuan luar biasa hari ini. Ingatlah untuk tidak terlalu keras pada diri sendiri. Nafasmu adalah jangkar terkuatmu saat dunia terasa terlalu bising. Sampai jumpa di sesi berikutnya, tetaplah bersinar!"
+                    </p>
+                </div>
+                <div class="text-center">
+                    <span class="inline-block bg-white text-brand-blue text-[11px] font-bold px-4 py-2 rounded-full border border-blue-100 hover:bg-brand-blue hover:text-white transition cursor-pointer">
+                        Rekomendasi: Latihan Meditasi 5 Menit
+                    </span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[24px] p-6 shadow-soft border border-gray-50">
+                <h3 class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-3">Kualitas Koneksi</h3>
+                <div class="text-[#A3E635] text-lg tracking-widest mb-3">★★★★★</div>
+                <p class="text-[11px] text-gray-500 leading-relaxed">Suara sangat jernih dan tidak ada kendala teknis sama sekali.</p>
+            </div>
+
+            <div class="bg-white rounded-[24px] p-6 shadow-soft border border-gray-50">
+                <h3 class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-3">Empati Konselor</h3>
+                <div class="text-[#A3E635] text-lg tracking-widest mb-3">★★★★★</div>
+                <p class="text-[11px] text-gray-500 leading-relaxed">Kak Sarah sangat mendengarkan tanpa menghakimi. Saya merasa aman.</p>
+            </div>
+
+            <div class="bg-white rounded-[24px] p-6 shadow-soft border border-gray-50">
+                <h3 class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-3">Ketepatan Solusi</h3>
+                <div class="text-[#A3E635] text-lg tracking-widest mb-3">★★★★<span class="text-gray-200">★</span></div>
+                <p class="text-[11px] text-gray-500 leading-relaxed">Tips yang diberikan cukup praktis untuk diterapkan segera.</p>
+            </div>
+
+            <div class="md:col-span-2 bg-[#F8FAFC] rounded-[32px] p-8 border border-gray-100">
+                <div class="flex items-center gap-3 mb-4">
+                    <h3 class="text-[10px] font-bold text-brand-blue uppercase tracking-widest">Komentar Akhir Kamu (Anonim)</h3>
+                </div>
+                <div class="text-[#A3E635] text-lg tracking-widest mb-4">★★★★★</div>
+                <div class="relative">
+                    <textarea class="w-full bg-white border border-gray-100 rounded-3xl p-5 text-sm text-gray-700 resize-none h-32 shadow-soft focus:border-brand-blue transition" placeholder="Ceritakan perasaanmu setelah sesi ini..."></textarea>
+                    <span class="absolute bottom-4 right-5 text-[9px] text-gray-400 font-bold uppercase">Sifatnya opsional & rahasia</span>
+                </div>
+            </div>
+
+            <div class="bg-share-green rounded-[32px] p-8 flex flex-col justify-center border border-[#86efac]">
+                <h3 class="font-bold text-gray-900 mb-3 text-xl">Bagikan Kisahmu</h3>
+                <p class="text-[13px] text-gray-700 leading-relaxed mb-6 font-medium">
+                    Inspirasi orang lain dengan membagikan cerita motivasimu secara publik. Kamu bisa menggunakan nama samaran.
+                </p>
+                <button class="w-full bg-btn-green hover:bg-[#3f6212] text-white font-bold py-3.5 rounded-full transition flex justify-center items-center gap-2 shadow-sm mt-auto">
+                    <span class="text-lg">📢</span> Posting Cerita
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ACTION BUTTONS -->
+    <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-20 px-6">
+        <a href="penilaian.html" class="w-full md:w-auto bg-btn-green hover:bg-[#3f6212] text-white px-10 py-3.5 rounded-full font-bold transition shadow-glow text-center inline-block">
+            Penilaian
+        </a>
+        <a href="pilih-konselor.html" class="w-full md:w-auto bg-white hover:bg-gray-50 text-brand-blue border border-brand-blue px-10 py-3.5 rounded-full font-bold transition shadow-sm text-center inline-block">
+            Jadwalkan Sesi Berikutnya
+        </a>
+    </div>
+
+    <div class="text-center text-brand-blue opacity-50 font-script italic text-2xl pb-16">
+        "Setiap hati pantas untuk didengar."
+    </div>
+
+</body>
+</html>

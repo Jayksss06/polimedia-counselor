@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Queue - Counselor Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#00668F',
+                        'brand-dark': '#004A6A',
+                        'bg-light': '#F8FAFC',
+                        'sidebar-active': '#E0F2FE',
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+                        'script': ['Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-bg-light font-sans text-gray-800 h-screen flex overflow-hidden">
+
+    <aside class="w-64 bg-white border-r border-gray-100 flex flex-col justify-between hidden md:flex z-20 shadow-sm">
+        <div>
+            <div class="h-20 flex items-center px-8 border-b border-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center text-white font-bold text-sm">P</div>
+                    <div>
+                        <h1 class="text-brand-blue font-bold text-sm leading-tight">Polimedia</h1>
+                        <p class="text-[10px] text-gray-400">Counselor Portal</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-2 mt-4">
+                <a href="counselor-dashboard.html" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium text-sm transition">
+                    <span>⊞</span> Dashboard
+                </a>
+                <a href="counselor-queue.html" class="flex items-center gap-3 px-4 py-3 bg-sidebar-active text-brand-blue rounded-xl font-semibold text-sm border-l-4 border-brand-blue">
+                    <span>⌛</span> Active Queue
+                </a>
+                <a href="counselor-chat.html" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium text-sm transition">
+                    <span>💬</span> Chat Hub
+                </a>
+                <a href="counselor-history.html" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium text-sm transition">
+                    <span>🕒</span> Session History
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-6">
+            <button class="w-full bg-brand-blue hover:bg-brand-dark text-white py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 shadow-sm">
+                <span>+</span> Start New Session
+            </button>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-8 z-10 sticky top-0">
+            <div class="text-brand-blue font-semibold text-lg hidden md:block">Polimedia Peer Counselor</div>
+            
+            <div class="flex items-center bg-gray-50 rounded-full px-4 py-2 w-96 border border-gray-100 mx-auto md:mx-0">
+                <span class="text-gray-400 text-sm">🔍</span>
+                <input type="text" id="searchInput" placeholder="Cari mahasiswa..." class="bg-transparent border-none outline-none ml-2 text-sm w-full text-gray-600 placeholder-gray-400">
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button class="text-gray-400 hover:text-gray-600">🔔</button>
+                <button class="text-gray-400 hover:text-gray-600">⚙️</button>
+                <div class="w-9 h-9 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Siti" alt="Counselor Profile" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto no-scrollbar p-6 md:p-10">
+            <div class="max-w-[1400px] mx-auto">
+
+                <div class="flex justify-between items-start mb-10">
+                    <div>
+                        <h1 class="text-3xl text-brand-blue font-script italic font-medium mb-2">Antrean Mahasiswa: Siap mendengarkan?</h1>
+                        <p class="text-sm text-gray-500 max-w-xl leading-relaxed">Berikan ruang yang aman bagi mereka. Kehadiranmu sangat berarti bagi rekan-rekanmu hari ini.</p>
+                    </div>
+                    <div class="hidden lg:block opacity-20 text-6xl">
+                        🗣️
+                    </div>
+                </div>
+
+                <div id="noResultMsg" class="hidden text-center py-10 bg-white rounded-3xl border border-gray-100 shadow-sm mb-10">
+                    <p class="text-gray-500 font-medium">Mahasiswa tidak ditemukan di antrean. 🕵️</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-10" id="queueContainer">
+                    
+                    <div class="student-card bg-white p-5 rounded-[24px] shadow-sm border border-gray-100 hover:shadow-md transition flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center text-xl">👤</div>
+                            <span class="bg-[#D9F99D] text-green-800 px-2 py-1 rounded-full text-[9px] font-bold uppercase flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 bg-green-600 rounded-full"></span> Urgent
+                            </span>
+                        </div>
+                        <div class="mb-5">
+                            <h3 class="student-name font-bold text-gray-900 text-lg">Syanaz</h3>
+                            <p class="text-xs text-gray-400 font-medium flex items-center gap-1 mt-0.5"><span>⏱️</span> 5 menit</p>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-50 pt-4">
+                            <span class="bg-blue-50 text-brand-blue px-3 py-1.5 rounded-full text-[10px] font-bold">Masalah Akademik</span>
+                            <button class="w-8 h-8 rounded-full bg-[#84CC16] hover:bg-green-600 text-white flex items-center justify-center transition shadow-sm">💬</button>
+                        </div>
+                    </div>
+
+                    <div class="student-card bg-white p-5 rounded-[24px] shadow-sm border border-gray-100 hover:shadow-md transition flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-500 flex items-center justify-center text-xl">👩</div>
+                        </div>
+                        <div class="mb-5">
+                            <h3 class="student-name font-bold text-gray-900 text-lg">Putri Aninta</h3>
+                            <p class="text-xs text-gray-400 font-medium flex items-center gap-1 mt-0.5"><span>⏱️</span> 12 menit</p>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-50 pt-4">
+                            <span class="bg-blue-50 text-brand-blue px-3 py-1.5 rounded-full text-[10px] font-bold">Hubungan Sosial</span>
+                            <button class="w-8 h-8 rounded-full bg-[#84CC16] hover:bg-green-600 text-white flex items-center justify-center transition shadow-sm">💬</button>
+                        </div>
+                    </div>
+
+                    <div class="student-card bg-white p-5 rounded-[24px] shadow-sm border border-gray-100 hover:shadow-md transition flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-xl">👨</div>
+                        </div>
+                        <div class="mb-5">
+                            <h3 class="student-name font-bold text-gray-900 text-lg">Dewa Putra</h3>
+                            <p class="text-xs text-gray-400 font-medium flex items-center gap-1 mt-0.5"><span>⏱️</span> 15 menit</p>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-50 pt-4">
+                            <span class="bg-blue-50 text-brand-blue px-3 py-1.5 rounded-full text-[10px] font-bold">Manajemen Stres</span>
+                            <button class="w-8 h-8 rounded-full bg-[#84CC16] hover:bg-green-600 text-white flex items-center justify-center transition shadow-sm">💬</button>
+                        </div>
+                    </div>
+
+                    <div class="student-card bg-white p-5 rounded-[24px] shadow-sm border border-gray-100 hover:shadow-md transition flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-xl">👦</div>
+                        </div>
+                        <div class="mb-5">
+                            <h3 class="student-name font-bold text-gray-900 text-lg">Satria Ilham</h3>
+                            <p class="text-xs text-gray-400 font-medium flex items-center gap-1 mt-0.5"><span>⏱️</span> 16 menit</p>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-50 pt-4">
+                            <span class="bg-blue-50 text-brand-blue px-3 py-1.5 rounded-full text-[10px] font-bold">Manajemen Stres</span>
+                            <button class="w-8 h-8 rounded-full bg-[#84CC16] hover:bg-green-600 text-white flex items-center justify-center transition shadow-sm">💬</button>
+                        </div>
+                    </div>
+
+                    <div class="student-card bg-white p-5 rounded-[24px] shadow-sm border border-gray-100 hover:shadow-md transition flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xl">👧</div>
+                        </div>
+                        <div class="mb-5">
+                            <h3 class="student-name font-bold text-gray-900 text-lg">Antonia Siregar</h3>
+                            <p class="text-xs text-gray-400 font-medium flex items-center gap-1 mt-0.5"><span>⏱️</span> 20 menit</p>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-50 pt-4">
+                            <span class="bg-blue-50 text-brand-blue px-3 py-1.5 rounded-full text-[10px] font-bold">Kesehatan Fisik</span>
+                            <button class="w-8 h-8 rounded-full bg-[#84CC16] hover:bg-green-600 text-white flex items-center justify-center transition shadow-sm">💬</button>
+                        </div>
+                    </div>
+
+                    <div class="student-card bg-white p-5 rounded-[24px] shadow-sm border border-gray-100 hover:shadow-md transition flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center text-xl">👦</div>
+                        </div>
+                        <div class="mb-5">
+                            <h3 class="student-name font-bold text-gray-900 text-lg">Rakha Mahendra</h3>
+                            <p class="text-xs text-gray-400 font-medium flex items-center gap-1 mt-0.5"><span>⏱️</span> 24 menit</p>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-50 pt-4">
+                            <span class="bg-blue-50 text-brand-blue px-3 py-1.5 rounded-full text-[10px] font-bold">Lainnya</span>
+                            <button class="w-8 h-8 rounded-full bg-[#84CC16] hover:bg-green-600 text-white flex items-center justify-center transition shadow-sm">💬</button>
+                        </div>
+                    </div>
+
+                    <div class="student-card bg-white p-5 rounded-[24px] shadow-sm border border-gray-100 hover:shadow-md transition flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-500 flex items-center justify-center text-xl">👱</div>
+                        </div>
+                        <div class="mb-5">
+                            <h3 class="student-name font-bold text-gray-900 text-lg">Dimaz Pratama</h3>
+                            <p class="text-xs text-gray-400 font-medium flex items-center gap-1 mt-0.5"><span>⏱️</span> 30 menit</p>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-50 pt-4">
+                            <span class="bg-blue-50 text-brand-blue px-3 py-1.5 rounded-full text-[10px] font-bold">Masalah Akademik</span>
+                            <button class="w-8 h-8 rounded-full bg-[#84CC16] hover:bg-green-600 text-white flex items-center justify-center transition shadow-sm">💬</button>
+                        </div>
+                    </div>
+
+                    <div id="dampakNyataCard" class="bg-brand-blue p-8 rounded-[24px] shadow-sm text-white flex flex-col justify-center relative overflow-hidden sm:col-span-2 xl:col-span-2">
+                        <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                        <div class="relative z-10">
+                            <h3 class="text-2xl font-bold mb-2">Dampak Nyata</h3>
+                            <p class="text-sm text-blue-100 mb-8 max-w-sm leading-relaxed">7 mahasiswa sedang menunggu bimbinganmu. Mulai sesi sekarang.</p>
+                            <button class="bg-[#D9F99D] hover:bg-green-300 text-green-900 font-bold px-6 py-2.5 rounded-full text-sm transition shadow-sm w-max">
+                                Ambil Antrean Terlama
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id="statsRow" class="grid grid-cols-1 md:grid-cols-3 gap-5 border-t border-gray-100 pt-10 pb-6">
+                    <div class="bg-white rounded-full py-4 px-6 flex items-center gap-4 shadow-sm border border-gray-50">
+                        <div class="w-10 h-10 bg-blue-100 text-brand-blue rounded-full flex items-center justify-center text-lg">👥</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-xl leading-none">24</h3>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Total Antrean</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-full py-4 px-6 flex items-center gap-4 shadow-sm border border-gray-50">
+                        <div class="w-10 h-10 bg-[#D9F99D] text-green-700 rounded-full flex items-center justify-center text-lg">⚡</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-xl leading-none">8m</h3>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Rerata Tunggu</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-full py-4 px-6 flex items-center gap-4 shadow-sm border border-gray-50">
+                        <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-lg">✔️</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-xl leading-none">142</h3>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Sesi Selesai</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const studentCards = document.querySelectorAll('.student-card');
+            const noResultMsg = document.getElementById('noResultMsg');
+            const dampakNyataCard = document.getElementById('dampakNyataCard');
+            const statsRow = document.getElementById('statsRow');
+
+            if (searchInput) {
+                // Menggunakan event 'keyup' agar setiap ketikan langsung diproses
+                searchInput.addEventListener('keyup', function(e) {
+                    const searchTerm = e.target.value.toLowerCase().trim();
+                    let hasResults = false;
+
+                    // Logika untuk menampilkan/menyembunyikan elemen conditional
+                    // Sembunyikan elemen 'Dampak Nyata' dan 'Statistik' jika ada input pencarian
+                    if (searchTerm !== '') {
+                        dampakNyataCard.classList.add('hidden');
+                        statsRow.classList.add('hidden');
+                    } else {
+                        // Tampilkan kembali jika input kosong
+                        dampakNyataCard.classList.remove('hidden');
+                        statsRow.classList.remove('hidden');
+                    }
+
+                    studentCards.forEach(card => {
+                        const nameElement = card.querySelector('.student-name');
+                        if (nameElement) {
+                            const studentName = nameElement.textContent.toLowerCase();
+                            
+                            // Logika filter
+                            if (studentName.includes(searchTerm)) {
+                                card.style.display = ''; // Tampilkan kartu
+                                hasResults = true;
+                            } else {
+                                card.style.display = 'none'; // Sembunyikan kartu
+                            }
+                        }
+                    });
+
+                    // Tampilkan pesan error jika nama tidak cocok dengan siapa pun
+                    if (!hasResults && searchTerm !== '') {
+                        noResultMsg.classList.remove('hidden');
+                    } else {
+                        noResultMsg.classList.add('hidden');
+                    }
+                });
+            } else {
+                console.error("Elemen Search Bar tidak ditemukan di kode.");
+            }
+        });
+    </script>
+</body>
+</html>

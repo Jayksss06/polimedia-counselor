@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk - Polimedia Peer Counselor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#00668F',
+                        'brand-dark': '#004A6A',
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        /* Background Gradient sesuai desain */
+        body {
+            background: linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%);
+            min-height: 100vh;
+        }
+
+        /* Input styling untuk inset feel */
+        .input-field {
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+            transition: all 0.2s;
+        }
+        .input-field:focus-within {
+            border-color: #00668F;
+            box-shadow: 0 0 0 2px rgba(0, 102, 143, 0.1);
+        }
+
+        /* Hide Scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Animation */
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="font-sans text-gray-800 flex items-center justify-center p-6">
+
+    <div id="authCard" class="bg-white rounded-[40px] shadow-[0_20px_60px_-15px_rgba(0,102,143,0.2)] w-full max-w-md p-8 md:p-12 transition-all duration-500 ease-in-out relative overflow-hidden">
+        
+        <div id="loginView" class="fade-in block">
+            
+            <div class="text-center mb-8">
+                <h2 id="loginTitle" class="text-brand-blue font-medium text-sm mb-1">Login sebagai Mahasiswa</h2>
+                <p class="text-gray-600 text-sm">Hello, Welcome back to account!</p>
+            </div>
+
+            <div class="bg-gray-100/80 p-1.5 rounded-full flex items-center mb-8 relative">
+                <div id="toggleSlider" class="absolute w-1/2 h-[calc(100%-12px)] bg-brand-blue rounded-full shadow-md transition-transform duration-300 ease-in-out left-1.5"></div>
+                
+                <button type="button" id="btnMahasiswa" class="flex-1 py-2.5 text-sm font-medium z-10 text-white transition-colors duration-300" onclick="setRole('mahasiswa')">
+                    Mahasiswa
+                </button>
+                <button type="button" id="btnKonselor" class="flex-1 py-2.5 text-sm font-medium z-10 text-gray-500 transition-colors duration-300" onclick="setRole('konselor')">
+                    Konselor
+                </button>
+            </div>
+
+            <form id="loginForm" class="space-y-5" onsubmit="handleLogin(event)">
+                
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5 ml-1">Email</label>
+                    <div class="input-field rounded-2xl flex items-center px-4 py-3">
+                        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <input type="email" placeholder="Enter your email" required class="bg-transparent w-full border-none outline-none text-sm text-gray-700 placeholder-gray-300">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5 ml-1">Password</label>
+                    <div class="input-field rounded-2xl flex items-center px-4 py-3">
+                        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required class="bg-transparent w-full border-none outline-none text-sm text-gray-700 placeholder-gray-300">
+                        <button type="button" onclick="togglePassword('loginPassword')" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-brand-blue hover:bg-brand-dark text-white font-medium py-3.5 rounded-2xl transition shadow-md mt-4">
+                    Confirm
+                </button>
+            </form>
+
+            <div class="text-center mt-8">
+                <p class="text-xs text-gray-500">Don't have an account? <button onclick="toggleView('register')" class="text-brand-blue font-bold hover:underline">Sign up</button></p>
+            </div>
+        </div>
+
+
+        <div id="registerView" class="fade-in hidden">
+            
+            <div class="text-center mb-8">
+                <h2 class="text-brand-blue font-medium text-sm mb-1">Daftar Akun Mahasiswa</h2>
+                <p class="text-gray-600 text-sm">Hello, Welcome to our platform!</p>
+            </div>
+
+            <form id="registerForm" class="grid grid-cols-1 md:grid-cols-2 gap-5" onsubmit="handleRegister(event)">
+                
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5 ml-1">Nama Lengkap</label>
+                    <div class="input-field rounded-2xl px-4 py-3">
+                        <input type="text" placeholder="Nama Lengkap Sesuai KTM" required class="bg-transparent w-full border-none outline-none text-sm text-gray-700 placeholder-gray-300">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5 ml-1">NIM</label>
+                    <div class="input-field rounded-2xl px-4 py-3">
+                        <input type="text" placeholder="(24*********)" required class="bg-transparent w-full border-none outline-none text-sm text-gray-700 placeholder-gray-300">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5 ml-1">Program Studi</label>
+                    <div class="input-field rounded-2xl px-4 py-3 relative">
+                        <select required class="bg-transparent w-full border-none outline-none text-sm text-gray-400 appearance-none cursor-pointer">
+                            <option value="" disabled selected>Lainnya</option>
+                            <option value="tg">Teknik Grafika</option>
+                            <option value="dkv">Desain Komunikasi Visual</option>
+                            <option value="mm">Multimedia</option>
+                            <option value="pb">Penerbitan</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center px-2 text-gray-300">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5 ml-1">Angkatan</label>
+                    <div class="input-field rounded-2xl px-4 py-3 relative">
+                        <select required class="bg-transparent w-full border-none outline-none text-sm text-gray-400 appearance-none cursor-pointer">
+                            <option value="" disabled selected>Lainnya</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center px-2 text-gray-300">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-gray-500 mb-1.5 ml-1">Semester</label>
+                    <div class="input-field rounded-2xl px-4 py-3 relative">
+                        <select required class="bg-transparent w-full border-none outline-none text-sm text-gray-400 appearance-none cursor-pointer">
+                            <option value="" disabled selected>Lainnya</option>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4">Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6">Semester 6</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center px-2 text-gray-300">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-gray-500 mb-1.5 ml-1">Email</label>
+                    <div class="input-field rounded-2xl flex items-center px-4 py-3">
+                        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <input type="email" placeholder="Enter your email" required class="bg-transparent w-full border-none outline-none text-sm text-gray-700 placeholder-gray-300">
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-gray-500 mb-1.5 ml-1">Password</label>
+                    <div class="input-field rounded-2xl flex items-center px-4 py-3">
+                        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <input type="password" id="regPassword" placeholder="******" required class="bg-transparent w-full border-none outline-none text-sm text-gray-700 placeholder-gray-300">
+                        <button type="button" onclick="togglePassword('regPassword')" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-gray-500 mb-1.5 ml-1">Nomor TLP</label>
+                    <div class="input-field rounded-2xl px-4 py-3">
+                        <input type="tel" placeholder="0897*********" required class="bg-transparent w-full border-none outline-none text-sm text-gray-700 placeholder-gray-300">
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 mt-4">
+                    <button type="submit" class="w-full bg-brand-blue hover:bg-brand-dark text-white font-medium py-3.5 rounded-2xl transition shadow-md">
+                        Confirm
+                    </button>
+                </div>
+
+            </form>
+
+            <div class="text-center mt-6">
+                <p class="text-xs text-gray-500">Already have an account? <button onclick="toggleView('login')" class="text-brand-blue font-bold hover:underline">Log in</button></p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // State Management
+        let currentRole = 'mahasiswa'; // Default role
+        
+        // Elements
+        const authCard = document.getElementById('authCard');
+        const loginView = document.getElementById('loginView');
+        const registerView = document.getElementById('registerView');
+        const toggleSlider = document.getElementById('toggleSlider');
+        const btnMahasiswa = document.getElementById('btnMahasiswa');
+        const btnKonselor = document.getElementById('btnKonselor');
+        const loginTitle = document.getElementById('loginTitle');
+
+        // 1. Fungsi Toggle Mahasiswa/Konselor (Hanya di tampilan Login)
+        function setRole(role) {
+            currentRole = role;
+            
+            if (role === 'mahasiswa') {
+                // Animate Slider to Left
+                toggleSlider.style.transform = 'translateX(0)';
+                
+                // Update Text Colors
+                btnMahasiswa.classList.replace('text-gray-500', 'text-white');
+                btnKonselor.classList.replace('text-white', 'text-gray-500');
+                
+                // Update Title
+                loginTitle.textContent = 'Login sebagai Mahasiswa';
+                loginTitle.classList.replace('text-purple-700', 'text-brand-blue'); // Jika ingin beda warna
+
+            } else {
+                // Animate Slider to Right
+                toggleSlider.style.transform = 'translateX(100%)';
+                
+                // Update Text Colors
+                btnKonselor.classList.replace('text-gray-500', 'text-white');
+                btnMahasiswa.classList.replace('text-white', 'text-gray-500');
+                
+                // Update Title
+                loginTitle.textContent = 'Login sebagai Konselor';
+            }
+        }
+
+        // 2. Fungsi Pindah Antara Login dan Register Form
+        function toggleView(view) {
+            if (view === 'register') {
+                loginView.classList.replace('block', 'hidden');
+                registerView.classList.replace('hidden', 'block');
+                
+                // Perlebar kartu karena form register lebih besar (Grid 2 Kolom)
+                authCard.classList.replace('max-w-md', 'max-w-2xl');
+            } else {
+                registerView.classList.replace('block', 'hidden');
+                loginView.classList.replace('hidden', 'block');
+                
+                // Kembalikan ukuran kartu ke aslinya
+                authCard.classList.replace('max-w-2xl', 'max-w-md');
+            }
+        }
+
+        // 3. Fungsi Intip Password (Mata)
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
+            }
+        }
+
+        // 4. Handle Submit Login (Redirect Dinamis)
+        function handleLogin(event) {
+            event.preventDefault(); // Mencegah reload halaman
+            
+            // Redirect sesuai role yang sedang aktif di toggle
+            if (currentRole === 'mahasiswa') {
+                window.location.href = 'index.html'; // Ke Landing Page Mahasiswa
+            } else if (currentRole === 'konselor') {
+                window.location.href = 'counselor-dashboard.html'; // Ke Dashboard Konselor
+            }
+        }
+
+        // 5. Handle Submit Register
+        function handleRegister(event) {
+            event.preventDefault();
+            // Asumsi: Setelah daftar sukses, langsung diarahkan ke landing page sebagai mahasiswa login
+            alert('Pendaftaran berhasil! Mengarahkan ke halaman utama...');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
