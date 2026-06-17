@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/api.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -271,16 +270,15 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // Mengecek sesi aktif menggunakan Supabase Auth
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             
             if (session) {
                 const btnLogout = document.getElementById('btnLogout');
                 if (btnLogout) {
                     btnLogout.classList.remove('hidden');
-                    // Mengaitkan tombol logout ke fungsi auth Supabase
                     btnLogout.addEventListener('click', async () => {
-                        await supabase.auth.signOut();
+                        // UBAH supabase.auth menjadi supabaseClient.auth
+                        await supabaseClient.auth.signOut();
                         window.location.reload();
                     });
                 }

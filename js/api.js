@@ -5,16 +5,16 @@
 // 1. INISIALISASI SUPABASE KLIEN
 const SUPABASE_URL = 'https://nqvohyidkegkwffnkcjg.supabase.co'; 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xdm9oeWlka2Vna3dmZm5rY2pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MDY4MTAsImV4cCI6MjA5NzE4MjgxMH0.v9L58CSuqyUUd9tdOVp5Zhul0a4zYvsQnI2pGCiwI04'; // GANTI INI
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // 2. MODUL AUTENTIKASI (Menggunakan Supabase Auth)
 const auth = {
     async getUser() {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await supabaseClient.auth.getUser();
         if (!user) return null;
         
         // Ambil data spesifik dari tabel public.users
-        const { data: profile } = await supabase
+        const { data: profile } = await supabaseClient
             .from('users')
             .select('*')
             .eq('email', user.email)
@@ -23,7 +23,7 @@ const auth = {
         return profile;
     },
     async logout() {
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
         window.location.href = 'login.html';
     }
 };
@@ -39,12 +39,12 @@ async function initLoginPage() {
         const nim = document.getElementById('regNIM').value;
 
         // Daftar ke Supabase Auth
-        const { data: authData, error: authErr } = await supabase.auth.signUp({ email, password });
+        const { data: authData, error: authErr } = await supabaseClient.auth.signUp({ email, password });
         
         if (authErr) { alert("Registrasi gagal: " + authErr.message); return; }
 
         // Masukkan data demografi ke tabel public.users
-        const { error: dbErr } = await supabase.from('users').insert([{
+        const { error: dbErr } = await supabaseClient.from('users').insert([{
             nama_lengkap, email, role: 'mahasiswa', nim, program_studi, avatar_seed: nama_lengkap.split(' ')[0]
         }]);
 
@@ -59,7 +59,7 @@ async function initLoginPage() {
         const email = document.querySelector('#loginForm input[type="email"]').value;
         const password = document.getElementById('loginPassword').value;
 
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         
         if (error) { alert("Kredensial tidak valid."); return; }
         window.location.href = 'index.html';
@@ -85,7 +85,7 @@ async function initPenilaianPage() {
         const komentar = form.querySelector('textarea')?.value || '';
         const rekomendasi = form.querySelector('input[name="rekomendasi"]:checked')?.value === 'ya' ? 1 : 0;
 
-        const { error } = await supabase.from('penilaian').insert([{
+        const { error } = await supabaseClient.from('penilaian').insert([{
             sesi_id: sesiId,
             skor_total: skor_total,
             rekomendasi: rekomendasi,
@@ -103,7 +103,7 @@ async function initPenilaianPage() {
 
 // 5. MODUL JELAJAH KONSELOR (pilih-konselor.html)
 async function initPilihKonselorPage() {
-    const { data: konselor, error } = await supabase
+    const { data: konselor, error } = await supabaseClient
         .from('konselor')
         .select(`*, users ( nama_lengkap, avatar_seed )`)
         .eq('status', 'Tersedia');
@@ -168,7 +168,7 @@ async function initIndexPage() {
     const containerKonselor = document.querySelector('[data-section="konselor-terbaik"]');
     if (containerKonselor) {
         // Melakukan kueri asinkronus ke Supabase, dibatasi 3 entitas teratas
-        const { data: konselor, error } = await supabase
+        const { data: konselor, error } = await supabaseClient
             .from('konselor')
             .select(`*, users ( nama_lengkap )`)
             .order('rating_rata', { ascending: false })
