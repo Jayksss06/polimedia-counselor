@@ -101,7 +101,6 @@ async function initPenilaianPage() {
     };
 }
 
-// 5. MODUL JELAJAH KONSELOR (pilih-konselor.html)
 async function initPilihKonselorPage() {
     const { data: konselor, error } = await supabaseClient
         .from('konselor')
@@ -125,90 +124,110 @@ async function initPilihKonselorPage() {
     }
 }
 
-// 5. MODUL BERANDA UTAMA (index.html)
 async function initIndexPage() {
-    // A. Render Statistika Deskriptif (Chart.js)
-    const ctx = document.getElementById('trenChart');
-    if (ctx) {
-        // Data di bawah ini menggunakan sampel agregat untuk keperluan demonstrasi pameran
-        // Pada eksekusi production penuh, data ini harus ditarik dari perhitungan tabel public.penilaian
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
-                datasets: [{
-                    label: 'Nilai Mean (Rata-rata) Kepuasan',
-                    data: [4.2, 4.5, 4.1, 4.8, 4.9, 4.8, 5.0],
-                    borderColor: '#0284C7',
-                    backgroundColor: 'rgba(2, 132, 199, 0.1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#00668F',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { 
-                    y: { 
-                        beginAtZero: false, 
-                        min: 3, 
-                        max: 5,
-                        grid: { borderDash: [5, 5] } 
-                    },
-                    x: { grid: { display: false } }
-                }
-            }
+    const { data: evaluasi, error: errEval } = await supabaseClient
+        .from('penilaian')
+        .select('skor_total, rekomendasi, created_at');
+
+    if (!errEval && evaluasi && evaluasi.length > 0) {
+        const populasi = evaluasi.length;
+        
+        const totalSkor = evaluasi.reduce((akumulasi, kuesioner) => akumulasi + kuesioner.skor_total, 0);
+        const meanSkor = (totalSkor / populasi).toFixed(1);
+        
+        const jumlahRekomendasi = evaluasi.filter(kuesioner => kuesioner.rekomendasi === 1).length;
+        const persentase = Math.round((jumlahRekomendasi / populasi) * 100);
+
+        const domResponden = document.querySelector('[data-stat="total-responden"]');
+        const domSkor = document.querySelector('[data-stat="rata-skor"]');
+        const domSkorMinggu = document.querySelector('[data-stat="rata-skor-minggu"]');
+        const domPersen = document.querySelector('[data-stat="persen-rekomendasi"]');
+
+        if(domResponden) domResponden.innerText = populasi;
+        if(domSkor) domSkor.innerText = meanSkor;
+        if(domSkorMinggu) domSkorMinggu.innerText = meanSkor;
+        if(domPersen) domPersen.innerText = persentase + '%';
+
+        const distribusiSkor = [0, 0, 0, 0, 0, 0, 0];
+        const hitungSesiHari = [0, 0, 0, 0, 0, 0, 0];
+
+        evaluasi.forEach(item => {
+            const indeksHari = new Date(item.created_at).getDay();
+            distribusiSkor[indeksHari] += item.skor_total;
+            hitungSesiHari[indeksHari] += 1;
         });
+
+        const trenHarian = distribusiSkor.map((akumulasiSkor, indeks) => 
+            hitungSesiHari[indeks] > 0 ? parseFloat((akumulasiSkor / hitungSesiHari[indeks]).toFixed(1)) : 0
+        );
+
+        const ctx = document.getElementById('trenChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+                    datasets: [{
+                        label: 'Mean Skor Kepuasan',
+                        data: trenHarian,
+                        borderColor: '#0284C7',
+                        backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#00668F',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { beginAtZero: false, min: 0, max: 5 },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
     }
 
-    // B. Tarik Data Konselor Berperingkat Tinggi
     const containerKonselor = document.querySelector('[data-section="konselor-terbaik"]');
     if (containerKonselor) {
-        // Melakukan kueri asinkronus ke Supabase, dibatasi 3 entitas teratas
         const { data: konselor, error } = await supabaseClient
             .from('konselor')
             .select(`*, users ( nama_lengkap )`)
             .order('rating_rata', { ascending: false })
             .limit(3);
 
-        if (error || !konselor || konselor.length === 0) {
-            containerKonselor.innerHTML = '<div class="text-center py-4 text-gray-400 text-sm">Data agregat belum tersedia di database.</div>';
-            return;
-        }
-
-        // Injeksi Node DOM
-        containerKonselor.innerHTML = konselor.map(k => `
-            <div class="flex items-center justify-between py-4 border-b border-gray-100 last:border-0">
-                <div class="w-1/3 font-bold text-gray-800 text-sm flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs">
-                        ${k.users.nama_lengkap.charAt(0)}
+        if (!error && konselor) {
+            containerKonselor.innerHTML = konselor.map(k => `
+                <div class="flex items-center justify-between py-4 border-b border-gray-100 last:border-0">
+                    <div class="w-1/3 font-bold text-gray-800 text-sm flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs">
+                            ${k.users.nama_lengkap.charAt(0)}
+                        </div>
+                        ${k.users.nama_lengkap}
                     </div>
-                    ${k.users.nama_lengkap}
+                    <div class="w-1/4 text-xs text-gray-500 font-medium">${k.jurusan}</div>
+                    <div class="w-1/4 text-sm font-black text-green-500">★ ${k.rating_rata.toFixed(1)}</div>
+                    <div class="w-1/6 text-right">
+                        <span class="text-[10px] font-bold px-3 py-1.5 ${k.status === 'Tersedia' ? 'bg-[#D1F48D] text-green-900' : 'bg-gray-100 text-gray-500'} rounded-full uppercase tracking-wider">
+                            ${k.status}
+                        </span>
+                    </div>
                 </div>
-                <div class="w-1/4 text-xs text-gray-500 font-medium">${k.jurusan}</div>
-                <div class="w-1/4 text-sm font-black text-green-500">★ ${k.rating_rata.toFixed(1)}</div>
-                <div class="w-1/6 text-right">
-                    <span class="text-[10px] font-bold px-3 py-1.5 ${k.status === 'Tersedia' ? 'bg-[#D1F48D] text-green-900' : 'bg-gray-100 text-gray-500'} rounded-full uppercase tracking-wider">
-                        ${k.status}
-                    </span>
-                </div>
-            </div>
-        `).join('');
+            `).join('');
+        }
     }
 }
 
-// 6. ROUTING INISIALISASI
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
-    const page = path.split('/').pop() || 'index.html'; // Mendukung root domain ("/") Vercel
+    const page = path.split('/').pop() || 'index.html'; 
     
     if (page === 'login.html') initLoginPage();
     if (page === 'penilaian.html') initPenilaianPage();
     if (page === 'pilih-konselor.html') initPilihKonselorPage();
     
-    // Pastikan root ("") dan "index.html" memicu fungsi beranda
     if (page === 'index.html' || page === '') initIndexPage(); 
 });
