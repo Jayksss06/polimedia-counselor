@@ -219,6 +219,62 @@ async function initIndexPage() {
             `).join('');
         }
     }
+
+    // ---------------------------------------------------------
+    // C. RENDER ULASAN (KAMU TIDAK SENDIRIAN)
+    // ---------------------------------------------------------
+    const containerUlasan = document.querySelector('[data-section="ulasan"]');
+    if (containerUlasan) {
+        // Menarik data penilaian dari Supabase
+        const { data: ulasan, error: errUlasan } = await supabaseClient
+            .from('penilaian')
+            .select('komentar, skor_total')
+            .not('komentar', 'is', null)
+            .limit(3);
+
+        if (!errUlasan && ulasan && ulasan.length > 0) {
+            containerUlasan.innerHTML = ulasan.map((u, i) => `
+                <div class="bg-white p-6 rounded-[20px] border border-gray-100 shadow-sm flex flex-col justify-between h-full">
+                    <div>
+                        <div class="text-yellow-400 text-sm mb-3">
+                            ${'★'.repeat(Math.round(u.skor_total))}${'☆'.repeat(5 - Math.round(u.skor_total))}
+                        </div>
+                        <p class="text-gray-600 text-sm leading-relaxed mb-4">"${u.komentar}"</p>
+                    </div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Responden #${i+1}</div>
+                </div>
+            `).join('');
+        } else {
+            containerUlasan.innerHTML = '<div class="col-span-3 text-center py-4 text-gray-400 text-sm">Data ulasan belum tersedia.</div>';
+        }
+    }
+
+    // ---------------------------------------------------------
+    // D. RENDER TOPIK KONSELING POPULER
+    // ---------------------------------------------------------
+    const containerTopik = document.querySelector('[data-section="topik-stats"]');
+    if (containerTopik) {
+        // Karena pada injeksi SQL sebelumnya kolom 'topik' tidak diisi spesifik, 
+        // kita menginjeksi array simulasi ini untuk keperluan visualisasi pameran.
+        const topikSimulasi = [
+            { nama: 'Kecemasan Akademik & Tugas', persen: 45, warna: 'bg-red-500' },
+            { nama: 'Manajemen Waktu & Prokrastinasi', persen: 30, warna: 'bg-blue-500' },
+            { nama: 'Hubungan Interpersonal', persen: 25, warna: 'bg-green-500' }
+        ];
+
+        containerTopik.innerHTML = topikSimulasi.map(t => `
+            <div>
+                <div class="flex justify-between text-sm font-bold text-gray-800 mb-2">
+                    <span>${t.nama}</span>
+                    <span>${t.persen}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                    <div class="${t.warna} h-2 rounded-full" style="width: ${t.persen}%"></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {
