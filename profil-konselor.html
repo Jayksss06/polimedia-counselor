@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Konselor - Polimedia Peer Counselor</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -22,126 +23,96 @@
             }
         }
     </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    </style>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');</style>
 </head>
-<body class="bg-brand-light font-sans text-gray-800 min-h-screen flex flex-col items-center py-10">
+<body class="bg-brand-light font-sans text-gray-800 min-h-screen flex flex-col">
 
-    <div class="w-full max-w-5xl flex justify-between items-center mb-8 px-4">
-        <a href="index.html" class="text-brand-blue font-medium flex items-center gap-2 hover:text-brand-dark transition">
-            <span>←</span> Kembali ke Halaman Utama
+    <!-- NAVBAR DISINKRONISASI -->
+    <nav class="flex justify-between items-center px-6 md:px-12 py-5 bg-white z-50 sticky top-0 border-b border-gray-100">
+        <div class="text-brand-blue font-semibold italic text-lg tracking-wide">Polimedia Peer Counselor</div>
+        <div class="hidden md:flex gap-8 text-sm font-medium text-gray-500">
+            <a href="index.html" class="hover:text-gray-900 transition">Beranda</a>
+            <a href="riwayat.html" class="hover:text-gray-900 transition">Riwayat</a>
+            <a href="pilih-konselor.html" class="text-brand-blue font-bold border-b-2 border-brand-blue pb-1">Jelajahi</a>
+            <a href="tentang.html" class="hover:text-gray-900 transition">Tentang Kami</a>
+            <a href="dashboard.html" class="hover:text-gray-900 transition">Dashboard</a>
+        </div>
+        <div class="flex gap-4 text-gray-400 items-center">
+            <button class="hover:text-brand-blue transition text-xl">🔔</button>
+            <a href="login.html" title="Login / Register" class="w-8 h-8 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition cursor-pointer text-gray-400 hover:text-brand-blue overflow-hidden">
+                <!-- Avatar dinamis akan dimuat oleh api.js ke class ini jika user login -->
+                <img data-nav="avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" alt="User Avatar" class="w-full h-full object-cover">
+            </a>
+            <!-- Tombol Logout (Otomatis ditangani oleh api.js jika diklik) -->
+            <button data-action="logout" class="text-xs font-bold text-red-500 hover:underline hidden" id="btnLogout">Keluar</button>
+        </div>
+    </nav>
+
+    <main class="flex-grow px-6 md:px-12 py-10 w-full max-w-5xl mx-auto">
+        <a href="pilih-konselor.html" class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-brand-blue mb-8 transition font-medium">
+            <span>←</span> Kembali ke Daftar Konselor
         </a>
-        <div class="text-brand-blue font-semibold italic text-xl tracking-wide">Polimedia Peer Counselor</div>
-        <div class="flex gap-3 text-gray-400 items-center">
-            <button class="hover:text-brand-blue transition">🔔</button>
-            <div class="w-8 h-8 bg-slate-300 rounded-full overflow-hidden">
-                </div>
-        </div>
-    </div>
 
-    <div class="w-full max-w-5xl bg-white p-8 md:p-12 rounded-[40px] shadow-sm border border-gray-100">
-        
-        <div class="w-full bg-gradient-to-r from-brand-blue to-brand-dark rounded-3xl p-8 md:p-10 text-white flex flex-col md:flex-row justify-between items-start md:items-end mb-12 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-64 h-full bg-white opacity-10 skew-x-12 translate-x-20"></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
             
-            <div class="relative z-10">
-                <span class="inline-block bg-green-400 text-brand-dark px-3 py-1 rounded-full text-[11px] font-extrabold mb-4 uppercase tracking-wider">
-                    Konselor Terverifikasi
-                </span>
-                <h1 class="text-4xl font-bold mb-2">Siti Nurhaliza</h1>
-                <p class="text-blue-100 font-medium">12210456 • Semester 6 • Desain Grafis</p>
-            </div>
-
-            <div class="relative z-10 mt-6 md:mt-0 text-left md:text-right">
-                <div class="text-green-400 text-2xl tracking-widest mb-1">★★★★☆</div>
-                <p class="text-sm text-blue-100">4.8 / 5.0 (42 Sesi Berhasil)</p>
-            </div>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-12">
-            
-            <div class="flex flex-col h-full">
-                <div class="flex items-center gap-2 mb-6">
-                    <span class="text-brand-blue text-xl">💡</span>
-                    <h2 class="text-xl font-bold text-gray-800">Kasus yang pernah ditangani</h2>
+            <div class="md:col-span-1 bg-white p-8 rounded-[30px] border border-gray-100 shadow-sm text-center">
+                <div class="w-24 h-24 mx-auto rounded-full bg-blue-100 text-brand-blue flex items-center justify-center font-bold text-3xl mb-4 overflow-hidden">
+                    <img data-nav="avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Counselor" class="w-full h-full object-cover" id="avatar-konselor">
+                </div>
+                
+                <h1 class="text-2xl font-bold text-gray-900 mb-1" data-konselor="nama">Memuat...</h1>
+                <p class="text-xs text-gray-400 mb-4" data-konselor="info">-</p>
+                
+                <div class="flex items-center justify-center gap-1 text-brand-green text-sm mb-8">
+                    ★ <span data-konselor="rating" class="font-medium ml-1 text-gray-600">0.0 / 5.0 (0 Sesi)</span>
                 </div>
 
-                <div class="space-y-4 flex-grow">
-                    <div class="bg-slate-50 p-5 rounded-2xl border-l-4 border-brand-blue">
-                        <h3 class="font-bold text-brand-blue mb-2">Kecemasan Akademik</h3>
-                        <p class="text-sm text-gray-600 leading-relaxed">Membantu mahasiswa tingkat akhir mengatasi 'procrastination' dan kecemasan menghadapi tugas akhir melalui teknik manajemen waktu dan mindfulness sederhana.</p>
-                    </div>
-                    <div class="bg-slate-50 p-5 rounded-2xl border-l-4 border-brand-green">
-                        <h3 class="font-bold text-brand-green mb-2">Adaptasi Lingkungan Kampus</h3>
-                        <p class="text-sm text-gray-600 leading-relaxed">Mendampingi mahasiswa baru yang mengalami kesulitan bersosialisasi dan rasa rindu rumah (homesickness) di semester pertama perkuliahan.</p>
-                    </div>
-                    <div class="bg-slate-50 p-5 rounded-2xl border-l-4 border-indigo-400">
-                        <h3 class="font-bold text-indigo-500 mb-2">Burnout Organisasi</h3>
-                        <p class="text-sm text-gray-600 leading-relaxed">Diskusi mengenai keseimbangan antara kesibukan organisasi BEM/Hima dengan prestasi akademik yang mulai menurun.</p>
-                    </div>
-                </div>
-
-                <a href="pendaftaran.html" class="w-full bg-brand-blue hover:bg-brand-dark text-white py-4 rounded-2xl font-bold text-lg mt-8 transition shadow-lg flex justify-center items-center gap-2">
-                    <span>📅</span> Buat Janji Temu
+                <a href="#" data-action="buat-janji" class="block w-full bg-brand-blue hover:bg-brand-dark text-white py-3.5 rounded-2xl font-bold transition shadow-md">
+                    Buat Janji Temu
                 </a>
             </div>
 
-            <div>
-                <div class="flex items-center gap-2 mb-6">
-                    <span class="text-brand-green text-xl">💬</span>
-                    <h2 class="text-xl font-bold text-gray-800">Ulasan dari Pengguna</h2>
+            <div class="md:col-span-2 space-y-6">
+                
+                <div class="bg-white p-8 rounded-[30px] border border-gray-100 shadow-sm">
+                    <h2 class="font-bold text-lg text-gray-900 mb-4">Tentang Konselor</h2>
+                    <p class="text-sm text-gray-600 leading-relaxed" data-konselor="bio">
+                        Memuat deskripsi bio konselor...
+                    </p>
                 </div>
 
-                <div class="space-y-4">
-                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                        <div class="flex justify-between items-center mb-3">
-                            <div class="text-brand-green text-xs">★★★★★</div>
-                            <span class="text-xs text-gray-400">2 hari yang lalu</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mb-4 leading-relaxed">"Sangat pendengar yang baik. Tidak menghakimi sama sekali saat saya cerita tentang masalah keluarga. Terima kasih Kak Siti!"</p>
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 bg-slate-200 rounded-full"></div>
-                            <span class="text-xs font-medium text-gray-500">Anonim (Mahasiswa Animasi)</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                        <div class="flex justify-between items-center mb-3">
-                            <div class="text-brand-green text-xs">★★★★☆</div>
-                            <span class="text-xs text-gray-400">1 minggu yang lalu</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mb-4 leading-relaxed">"Solusi yang diberikan sangat praktis untuk dikerjakan. Saya jadi lebih tenang menghadapi sidang semester depan."</p>
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 bg-slate-200 rounded-full"></div>
-                            <span class="text-xs font-medium text-gray-500">Anonim (Mahasiswa Penerbitan)</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                        <div class="flex justify-between items-center mb-3">
-                            <div class="text-brand-green text-xs">★★★★★</div>
-                            <span class="text-xs text-gray-400">3 minggu yang lalu</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mb-4 leading-relaxed">"Ramah dan asik diajak ngobrol. Berasa curhat sama temen sendiri."</p>
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 bg-slate-200 rounded-full"></div>
-                            <span class="text-xs font-medium text-gray-500">Anonim (Mahasiswa Broadcasting)</span>
-                        </div>
+                <div class="bg-white p-8 rounded-[30px] border border-gray-100 shadow-sm">
+                    <h2 class="font-bold text-lg text-gray-900 mb-6">Ulasan Mahasiswa</h2>
+                    
+                    <div class="space-y-4" data-section="ulasan-konselor">
+                        <div class="text-center py-6 text-gray-400 text-sm">Memuat ulasan...</div>
                     </div>
                 </div>
 
-                <div class="text-center mt-6">
-                    <a href="#" class="text-brand-blue text-sm font-semibold hover:underline">Lihat 39 ulasan lainnya</a>
-                </div>
             </div>
-
         </div>
-    </div>
+    </main>
 
-    <div class="mt-8 text-center text-brand-blue opacity-50 font-script italic text-lg">
-        "Kamu tidak sendirian dalam perjalanan ini."
-    </div>
+    <footer class="mt-8 text-center pb-8 border-t border-gray-100 pt-8">
+        <p class="text-[10px] text-gray-400 font-medium">© 2026 Polimedia Peer Counselor.</p>
+    </footer>
 
+    <script src="js/api.js"></script>
+
+    <!-- Skrip inisialisasi sesi login (sama seperti di index.html) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Memeriksa apakah `supabaseClient` sudah didefinisikan di js/api.js
+            if (typeof supabaseClient !== 'undefined') {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    const btnLogout = document.getElementById('btnLogout');
+                    if (btnLogout) {
+                        btnLogout.classList.remove('hidden');
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
