@@ -2,18 +2,6 @@
  * ============================================================================
  * Polimedia Peer Counselor — Supabase Integration Layer (js/api.js)
  * ============================================================================
- * File ini adalah satu-satunya tempat yang berbicara langsung ke Supabase.
- * Setiap halaman HTML cukup memuat file ini (setelah SDK Supabase) lalu
- * memberi atribut `data-stat` / `data-section` pada elemen yang perlu
- * diisi otomatis. Lihat polimedia_backend/README.md untuk daftar atribut.
- *
- * Cara pakai di setiap HTML (urutan harus seperti ini):
- *   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
- *   <script src="js/api.js"></script>
- *
- * GANTI nilai SUPABASE_URL & SUPABASE_ANON_KEY di bawah dengan kredensial
- * project Supabase Anda sendiri (Project Settings > API).
- * ============================================================================
  */
 
 // ----------------------------------------------------------------------
@@ -23,12 +11,15 @@ const SUPABASE_URL = 'https://nqvohyidkegkwffnkcjg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xdm9oeWlka2Vna3dmZm5rY2pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MDY4MTAsImV4cCI6MjA5NzE4MjgxMH0.v9L58CSuqyUUd9tdOVp5Zhul0a4zYvsQnI2pGCiwI04';
 
 if (typeof window.supabase === 'undefined') {
-    console.error('[api.js] SDK Supabase belum dimuat. Pastikan <script src=".../supabase-js@2"></script> diletakkan SEBELUM js/api.js.');
+    console.error('[api.js] SDK Supabase belum dimuat.');
 }
 
 const supabaseClient = window.supabase
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     : null;
+
+// Ekspos ke global agar terbaca oleh skrip di HTML
+window.supabaseClient = supabaseClient;
 
 // ----------------------------------------------------------------------
 // Helper umum dipakai di banyak tempat
@@ -72,14 +63,12 @@ function waktuRelatif(tanggalStr) {
 // 2. MODUL AUTENTIKASI
 // ----------------------------------------------------------------------
 const auth = {
-    /** Ambil session aktif Supabase Auth */
     async getSession() {
         const { data, error } = await supabaseClient.auth.getSession();
         if (error) { console.error('getSession error:', error); return null; }
         return data.session;
     },
 
-    /** Ambil profil lengkap (public.users + relasi konselor jika ada) milik user yang login */
     async getProfile() {
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (!user) return null;
@@ -99,7 +88,6 @@ const auth = {
         window.location.href = 'login.html';
     },
 
-    /** Pastikan user login, kalau tidak redirect ke login.html. Mengembalikan profile jika berhasil. */
     async requireLogin() {
         const session = await this.getSession();
         if (!session) {
@@ -109,7 +97,6 @@ const auth = {
         return await this.getProfile();
     },
 
-    /** Pastikan user login DAN berperan sebagai konselor; kalau bukan, lempar ke index.html */
     async requireKonselor() {
         const profile = await this.requireLogin();
         if (!profile) return null;
@@ -124,7 +111,7 @@ const auth = {
 window.PolimediaAuth = auth;
 
 // ----------------------------------------------------------------------
-// 3. NAVBAR: status login & tombol logout (berjalan otomatis di semua halaman)
+// 3. NAVBAR
 // ----------------------------------------------------------------------
 async function initNavbar() {
     if (!supabaseClient) return;
@@ -135,7 +122,6 @@ async function initNavbar() {
 
     if (session) {
         const profile = await auth.getProfile();
-
         if (btnLogout) {
             btnLogout.classList.remove('hidden');
             btnLogout.addEventListener('click', async (e) => {
@@ -174,12 +160,7 @@ function initLoginPage() {
             return;
         }
 
-        const { data: profile } = await supabaseClient
-            .from('users')
-            .select('role')
-            .eq('id', data.user.id)
-            .single();
-
+        const { data: profile } = await supabaseClient.from('users').select('role').eq('id', data.user.id).single();
         window.location.href = (profile && profile.role === 'konselor') ? 'counselor-dashboard.html' : 'index.html';
     };
 
@@ -208,11 +189,8 @@ function initLoginPage() {
         submitBtn.innerHTML = 'Mendaftarkan...';
 
         const { error } = await supabaseClient.auth.signUp({
-            email,
-            password,
-            options: {
-                data: { nama_lengkap, nim, program_studi, semester, telepon, role: 'mahasiswa' },
-            },
+            email, password,
+            options: { data: { nama_lengkap, nim, program_studi, semester, telepon, role: 'mahasiswa' } },
         });
 
         if (error) {
@@ -230,153 +208,186 @@ function initLoginPage() {
 }
 
 // ----------------------------------------------------------------------
-// 5. HALAMAN BERANDA (index.html)
+// 5. HALAMAN BERANDA (index.html) -> DIGABUNG DENGAN UI AKORDEON
 // ----------------------------------------------------------------------
+
+// Fungsi Buka-Tutup Akordeon untuk index.html
+window.toggleAccordion = function(id) {
+    const target = document.getElementById(id);
+    if (!target) return;
+    const isHidden = target.classList.contains('hidden');
+    document.querySelectorAll('.counselor-detail').forEach(el => el.classList.add('hidden'));
+    if (isHidden) target.classList.remove('hidden');
+};
+
 async function initIndexPage() {
+    // 1. Tarik Data Metrik Utama (dari View asli)
     const { data: homeStats } = await supabaseClient.from('v_home_stats').select('*').single();
-
     if (homeStats) {
-        setText('[data-stat="total-responden"]', homeStats.total_responden ?? 0);
-        setText('[data-stat="rata-skor"]', fmtRating(homeStats.rata_skor));
-        setText('[data-stat="rata-skor-minggu"]', fmtRating(homeStats.rata_skor));
-        setText('[data-stat="persen-rekomendasi"]', `${homeStats.persen_rekomendasi ?? 0}%`);
+        setText('#homeTotalResponden', homeStats.total_responden ?? 0);
+        setText('#homeRataSkor', fmtRating(homeStats.rata_skor));
+        setText('#homePersenRekomendasi', `${homeStats.persen_rekomendasi ?? 0}%`);
     }
 
-    const containerKonselor = qs('[data-section="konselor-terbaik"]');
-    if (containerKonselor) {
-        const { data: konselor, error } = await supabaseClient.from('v_konselor_terbaik').select('*').limit(3);
-
-        if (!error && konselor && konselor.length > 0) {
-            containerKonselor.innerHTML = konselor.map((k) => `
-                <div class="flex items-center justify-between py-4 border-b border-gray-100 last:border-0">
-                    <div class="w-1/3 font-bold text-gray-800 text-sm flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs overflow-hidden">
-                            <img src="${avatarUrl(k.avatar_seed || k.nama_lengkap)}" class="w-full h-full object-cover" alt="${escapeHtml(k.nama_lengkap)}">
-                        </div>
-                        ${escapeHtml(k.nama_lengkap)}
-                    </div>
-                    <div class="w-1/4 text-xs text-gray-500 font-medium">${escapeHtml(k.jurusan || '-')}</div>
-                    <div class="w-1/4 text-sm font-black text-green-500">★ ${fmtRating(k.rating_rata)}</div>
-                    <div class="w-1/6 text-right">
-                        <span class="text-[10px] font-bold px-3 py-1.5 ${k.status === 'Tersedia' ? 'bg-[#D1F48D] text-green-900' : 'bg-gray-100 text-gray-500'} rounded-full uppercase tracking-wider">
-                            ${escapeHtml(k.status)}
-                        </span>
-                    </div>
-                </div>
-            `).join('');
-        } else {
-            containerKonselor.innerHTML = '<div class="text-center py-8 text-gray-400 text-sm">Belum ada data konselor.</div>';
-        }
-    }
-
-    const containerUlasan = qs('[data-section="ulasan"]');
+    // 2. Tarik Data Ulasan (dari Tabel penilaian)
+    const containerUlasan = document.getElementById('ulasanContainer');
     if (containerUlasan) {
-        const { data: ulasan, error } = await supabaseClient
+        const { data: ulasan } = await supabaseClient
             .from('penilaian')
             .select('komentar, skor_total, created_at, users:mahasiswa_id(program_studi)')
             .not('komentar', 'is', null)
             .order('created_at', { ascending: false })
-            .limit(6);
+            .limit(3);
 
-        if (!error && ulasan && ulasan.length > 0) {
-            containerUlasan.innerHTML = ulasan.map((u) => `
-                <div class="bg-white p-6 rounded-[20px] border border-gray-100 shadow-sm flex flex-col justify-between h-full">
+        if (ulasan && ulasan.length > 0) {
+            containerUlasan.innerHTML = ulasan.map((u) => {
+                const rating = Math.round(u.skor_total || 5);
+                return `
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 card-shadow flex flex-col justify-between">
                     <div>
-                        <div class="text-yellow-400 text-sm mb-3">
-                            ${'★'.repeat(Math.round(u.skor_total || 0))}${'☆'.repeat(5 - Math.round(u.skor_total || 0))}
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="text-[#F59E0B] text-xs tracking-widest">${'★'.repeat(rating)}</div>
+                            <span class="text-[10px] text-gray-400">${waktuRelatif(u.created_at)}</span>
                         </div>
-                        <p class="text-gray-600 text-sm leading-relaxed mb-4">"${escapeHtml(u.komentar)}"</p>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-6">"${escapeHtml(u.komentar)}"</p>
                     </div>
-                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        Mahasiswa ${escapeHtml(u.users?.program_studi || '')}
+                    <div class="flex items-center gap-3 pt-4 border-t border-gray-50">
+                        <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden">
+                            <img src="${avatarUrl(u.users?.program_studi || 'Student')}" class="w-full h-full object-cover">
+                        </div>
+                        <h4 class="text-[11px] font-bold text-gray-800">Mahasiswa ${escapeHtml(u.users?.program_studi || 'Polimedia')}</h4>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         } else {
             containerUlasan.innerHTML = '<div class="col-span-3 text-center py-10 text-gray-400 text-sm">Belum ada ulasan tersedia.</div>';
         }
     }
 
-    const containerTopik = qs('[data-section="topik-stats"]');
+    // 3. Tarik Data Topik (dari Tabel sesi yang asli)
+    const containerTopik = document.getElementById('topikContainer');
     if (containerTopik) {
-        const { data: sesiTopik, error } = await supabaseClient
+        const { data: sesiTopik } = await supabaseClient
             .from('sesi')
             .select('topik')
             .eq('status', 'Selesai')
             .not('topik', 'is', null);
 
-        if (!error && sesiTopik && sesiTopik.length > 0) {
+        if (sesiTopik && sesiTopik.length > 0) {
             const counts = {};
             sesiTopik.forEach((s) => { counts[s.topik] = (counts[s.topik] || 0) + 1; });
             const total = sesiTopik.length;
-            const palet = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-indigo-500', 'bg-amber-500'];
-            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const palet = ['#00668F', '#4D7C0F', '#4F46E5', '#D97706', '#E11D48'];
+            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
 
             containerTopik.innerHTML = sorted.map(([nama, jumlah], i) => {
                 const persen = Math.round((jumlah / total) * 100);
+                const warna = palet[i % palet.length];
                 return `
-                    <div>
-                        <div class="flex justify-between text-sm font-bold text-gray-800 mb-2">
-                            <span>${escapeHtml(nama)}</span><span>${persen}%</span>
-                        </div>
-                        <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                            <div class="${palet[i % palet.length]} h-2 rounded-full" style="width: ${persen}%"></div>
-                        </div>
+                <div>
+                    <div class="flex justify-between text-xs font-bold text-gray-900 mb-2">
+                        <span>${escapeHtml(nama).toUpperCase()}</span>
+                        <span style="color: ${warna}">${persen}%</span>
                     </div>
-                `;
+                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div style="background-color: ${warna}; width: ${persen}%" class="h-full rounded-full"></div>
+                    </div>
+                </div>`;
             }).join('');
         } else {
             containerTopik.innerHTML = '<div class="text-center py-4 text-gray-400 text-sm">Belum ada data topik.</div>';
         }
     }
 
-    const ctx = document.getElementById('trenChart');
-    if (ctx) {
-        const { data: tren } = await supabaseClient
-            .from('penilaian')
-            .select('skor_total, created_at')
-            .order('created_at', { ascending: true });
+    // 4. Tarik Profil Konselor dengan Akordeon & Chart
+    const containerKonselor = document.getElementById('konselorContainer');
+    if (containerKonselor) {
+        const { data: konselor, error } = await supabaseClient.from('v_konselor_terbaik').select('*').limit(3);
 
-        let labels = ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5'];
-        let dataPoin = [0, 0, 0, 0, 0];
+        if (!error && konselor && konselor.length > 0) {
+            containerKonselor.innerHTML = konselor.map((k, index) => {
+                const isTersedia = k.status === 'Tersedia';
+                const statusHTML = isTersedia
+                    ? `<span class="bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 border border-green-100"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Tersedia</span>`
+                    : `<span class="bg-gray-100 text-gray-500 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 border border-gray-200">Sesi Penuh</span>`;
+                
+                const chartId = `dynamicChart_${k.id || index}`;
+                const kepuasanDesimal = fmtRating(k.rating_rata);
+                const kepuasanPersen = Math.round((k.rating_rata / 5) * 100) || 0;
 
-        if (tren && tren.length > 0) {
-            const byWeek = {};
-            tren.forEach((row) => {
-                const w = getWeekNumber(new Date(row.created_at));
-                if (!byWeek[w]) byWeek[w] = [];
-                byWeek[w].push(Number(row.skor_total) || 0);
-            });
-            const weekKeys = Object.keys(byWeek).sort((a, b) => a - b).slice(-5);
-            labels = weekKeys.map((_, i) => `Minggu ${i + 1}`);
-            dataPoin = weekKeys.map((w) => {
-                const arr = byWeek[w];
-                return Number((arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1));
-            });
+                return `
+                <div class="px-6 md:px-10 mb-4">
+                    <div onclick="toggleAccordion('detail-${chartId}')" class="cursor-pointer flex flex-col md:flex-row items-start md:items-center justify-between p-4 px-6 md:px-8 bg-white rounded-3xl md:rounded-full shadow-sm hover:shadow-md border border-transparent hover:border-brand-blue/20 transition-all">
+                        <div class="w-full md:w-1/3 flex items-center gap-4 mb-3 md:mb-0">
+                            <div class="w-10 h-10 flex items-center justify-center font-bold text-xs rounded-full bg-blue-50 text-brand-blue overflow-hidden">
+                                <img src="${avatarUrl(k.avatar_seed || k.nama_lengkap)}" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-900 text-sm group-hover:text-brand-blue transition">${escapeHtml(k.nama_lengkap)}</h3>
+                                <p class="text-[10px] text-gray-400">Level: ${escapeHtml(k.level || 'Peer')}</p>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/4 text-xs text-gray-600 font-medium mb-3 md:mb-0">${escapeHtml(k.jurusan || '-')}</div>
+                        <div class="w-full md:w-1/4 flex items-center gap-1.5 text-xs font-bold text-gray-800 mb-3 md:mb-0">
+                            <span class="text-[#10B981]">★</span> ${kepuasanPersen}% <span class="text-[10px] text-gray-400 font-normal">(${k.total_sesi || 0} Sesi)</span>
+                        </div>
+                        <div class="w-full md:w-1/6 flex justify-start md:justify-end">${statusHTML}</div>
+                    </div>
+
+                    <div id="detail-${chartId}" class="counselor-detail hidden mt-6 mb-8 px-2 md:px-8 fade-in-down">
+                        <div class="bg-white rounded-[20px] p-8 mb-6 shadow-sm border border-gray-100 flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Rata-rata Penilaian</p>
+                                <div class="flex items-baseline gap-2 mb-2">
+                                    <h3 class="text-4xl font-black text-gray-900">${kepuasanDesimal}</h3>
+                                    <span class="text-sm font-bold text-gray-400">/ 5.0</span>
+                                </div>
+                            </div>
+                            <div class="w-14 h-14 bg-[#004A6A] text-white rounded-full flex items-center justify-center text-xl shadow-md">★</div>
+                        </div>
+                        <div class="bg-white rounded-[20px] p-8 border border-gray-100">
+                            <div class="flex justify-between items-center mb-8">
+                                <h4 class="font-bold text-gray-800 text-sm">Tren Penilaian Terakhir</h4>
+                            </div>
+                            <div class="relative h-48 w-full"><canvas id="${chartId}"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            // Inisialisasi Chart.js untuk setiap Konselor
+            if (typeof Chart !== 'undefined') {
+                const chartOptions = {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { min: 0, max: 5, ticks: { stepSize: 1, color: '#94A3B8' }, border: { display: false }, grid: { color: '#F1F5F9'} },
+                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#94A3B8' } }
+                    }
+                };
+
+                konselor.forEach((k, index) => {
+                    const ctx = document.getElementById(`dynamicChart_${k.id || index}`);
+                    if (ctx) {
+                        new Chart(ctx.getContext('2d'), {
+                            type: 'bar',
+                            data: {
+                                labels: ['Sesi 1', 'Sesi 2', 'Sesi 3', 'Sesi 4', 'Terkini'],
+                                datasets: [{
+                                    data: [0, 0, 0, 0, k.rating_rata],
+                                    backgroundColor: ['#F1F5F9', '#F1F5F9', '#F1F5F9', '#F1F5F9', '#0F172A'],
+                                    borderRadius: 4, barThickness: 32
+                                }]
+                            },
+                            options: chartOptions
+                        });
+                    }
+                });
+            }
+        } else {
+            containerKonselor.innerHTML = '<div class="text-center py-8 text-gray-400 text-sm">Belum ada data konselor tersedia.</div>';
         }
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels,
-                datasets: [{
-                    label: 'Mean Skor Kepuasan',
-                    data: dataPoin,
-                    borderColor: '#0284C7',
-                    backgroundColor: 'rgba(2, 132, 199, 0.1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#00668F',
-                    tension: 0.4,
-                    fill: true,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, min: 0, max: 5 }, x: { grid: { display: false } } },
-            },
-        });
     }
 }
 
@@ -553,8 +564,8 @@ async function initPenjadwalanPage() {
         qsa('[data-konselor="nama-jadwal"]').forEach((el) => { el.textContent = k.users.nama_lengkap; });
     }
 
-    let selectedDate = null; // format YYYY-MM-DD
-    let selectedTime = null; // format HH:MM
+    let selectedDate = null; 
+    let selectedTime = null; 
 
     const dateButtons = qsa('.date-btn');
     const timeButtons = qsa('.time-btn');
@@ -699,7 +710,6 @@ async function initLiveChatPage() {
 
     await loadPesan();
 
-    // Live update: dengarkan pesan baru lewat Supabase Realtime
     supabaseClient
         .channel(`pesan-sesi-${sesiId}`)
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pesan', filter: `sesi_id=eq.${sesiId}` }, () => loadPesan())
@@ -933,6 +943,9 @@ async function initRiwayatPage() {
     setText('[data-stat="total-menit-bulan"]', sesiBulanIni.length * 60);
 }
 
+// ----------------------------------------------------------------------
+// INIT: EKSEKUSI BERDASARKAN URL
+// ----------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
     await initNavbar();
 

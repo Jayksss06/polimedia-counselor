@@ -84,10 +84,10 @@
                     <div class="w-10 h-10 bg-[#EEF2FF] text-[#4F46E5] rounded-full flex items-center justify-center text-sm mb-2">👥</div>
                     <div class="flex justify-between items-end">
                         <div>
-                            <h3 class="text-4xl font-black text-gray-900 leading-none mb-1" id="homeTotalResponden">0</h3>
+                            <h3 class="text-4xl font-black text-gray-900 leading-none mb-1" id="homeTotalResponden">...</h3>
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total Responden</p>
                         </div>
-                        <span class="bg-[#D9F99D] text-green-800 text-[10px] font-bold px-3 py-1 rounded-full mb-1">+12%</span>
+                        <span class="bg-[#D9F99D] text-green-800 text-[10px] font-bold px-3 py-1 rounded-full mb-1">Live</span>
                     </div>
                 </div>
                 <div class="bg-white p-8 rounded-[30px] card-shadow border border-gray-100 flex flex-col justify-between h-[160px]">
@@ -95,22 +95,22 @@
                     <div class="flex justify-between items-end">
                         <div>
                             <div class="flex items-baseline gap-1 mb-1">
-                                <h3 class="text-4xl font-black text-gray-900 leading-none" id="homeRataSkor">0.00</h3>
+                                <h3 class="text-4xl font-black text-gray-900 leading-none" id="homeRataSkor">...</h3>
                                 <span class="text-xs font-bold text-gray-400">/ 5.0</span>
                             </div>
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Rata-rata Skor</p>
                         </div>
-                        <span class="bg-[#E0F2FE] text-[#0284C7] text-[10px] font-bold px-3 py-1 rounded-full mb-1">Excellent</span>
+                        <span class="bg-[#E0F2FE] text-[#0284C7] text-[10px] font-bold px-3 py-1 rounded-full mb-1">Live</span>
                     </div>
                 </div>
                 <div class="bg-white p-8 rounded-[30px] card-shadow border border-gray-100 flex flex-col justify-between h-[160px]">
                     <div class="w-10 h-10 bg-[#F3E8FF] text-[#9333EA] rounded-full flex items-center justify-center text-sm mb-2">🛡️</div>
                     <div class="flex justify-between items-end">
                         <div>
-                            <h3 class="text-4xl font-black text-gray-900 leading-none mb-1" id="homePersenRekomendasi">0%</h3>
+                            <h3 class="text-4xl font-black text-gray-900 leading-none mb-1" id="homePersenRekomendasi">...</h3>
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Persentase Rekomendasi</p>
                         </div>
-                        <span class="bg-[#F3E8FF] text-[#9333EA] text-[10px] font-bold px-3 py-1 rounded-full mb-1">Trust</span>
+                        <span class="bg-[#F3E8FF] text-[#9333EA] text-[10px] font-bold px-3 py-1 rounded-full mb-1">Live</span>
                     </div>
                 </div>
             </div>
@@ -125,7 +125,10 @@
                 <a href="#" class="text-sm font-bold text-brand-blue hover:text-brand-dark transition">Lihat semua (10+) ></a>
             </div>
             <div id="ulasanContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="col-span-3 text-center py-8 text-gray-400 text-sm">Mengunduh data ulasan dari server...</div>
+                <div class="col-span-3 text-center py-8 text-gray-400 text-sm">
+                    <span class="w-4 h-4 inline-block border-2 border-brand-blue border-t-transparent rounded-full animate-spin mr-2 align-middle"></span>
+                    Menghubungkan ke pangkalan data...
+                </div>
             </div>
         </section>
 
@@ -138,7 +141,7 @@
                 <a href="pilih-konselor.html" class="text-sm font-bold text-brand-blue hover:text-brand-dark transition hidden md:block">Lihat semua topik ></a>
             </div>
             <div id="topikContainer" class="space-y-6">
-                <div class="text-center py-4 text-gray-400 text-sm">Mengunduh agregat topik dari server...</div>
+                <div class="text-center py-4 text-gray-400 text-sm">Menghitung agregat topik...</div>
             </div>
         </section>
 
@@ -155,7 +158,7 @@
                 </div>
 
                 <div id="konselorContainer">
-                    <div class="text-center py-8 text-gray-400 text-sm">Mengunduh profil konselor dari server...</div>
+                    <div class="text-center py-8 text-gray-400 text-sm">Menarik profil konselor...</div>
                 </div>
             </div>
         </section>
@@ -183,182 +186,5 @@
     </footer>
 
     <script src="js/api.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (typeof window.supabaseClient !== 'undefined') {
-                const { data: { session } } = await window.supabaseClient.auth.getSession();
-                if (session) {
-                    const btnLogout = document.getElementById('btnLogout');
-                    if (btnLogout) btnLogout.classList.remove('hidden');
-                }
-            }
-            inisiasiMetrikBeranda();
-            inisiasiDataDinamis(); // Memanggil data untuk 3 seksi di bawah
-        });
-
-        // ============================================================
-        // ENGINE SINKRONISASI METRIK BERANDA REAL-TIME
-        // ============================================================
-        async function inisiasiMetrikBeranda() {
-            if (typeof window.supabaseClient === 'undefined') return;
-            const client = window.supabaseClient;
-
-            const { data, error } = await client.from('kuesioner_evaluasi').select('*');
-            if (!error && data) kalkulasiMetrikHome(data);
-
-            client.channel('home-metrics-sync')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'kuesioner_evaluasi' }, payload => {
-                    client.from('kuesioner_evaluasi').select('*').then(({ data: updatedData }) => {
-                        if (updatedData) kalkulasiMetrikHome(updatedData);
-                    });
-                })
-                .subscribe();
-        }
-
-        function kalkulasiMetrikHome(dataList) {
-            const total = dataList.length;
-            let totalSkorGlobal = 0, rekomendasiYa = 0;
-
-            dataList.forEach(row => {
-                totalSkorGlobal += (row.q_mendengarkan + row.q_memahami + row.q_penjelasan + row.q_solusi + row.q_komunikasi + row.q_profesional + row.q_nyaman + row.q_rahasia) / 8;
-                if (row.rekomendasi) rekomendasiYa++;
-            });
-
-            document.getElementById('homeTotalResponden').textContent = total.toLocaleString('id-ID');
-            document.getElementById('homeRataSkor').textContent = total > 0 ? (totalSkorGlobal / total).toFixed(2) : "0.00";
-            document.getElementById('homePersenRekomendasi').textContent = (total > 0 ? Math.round((rekomendasiYa / total) * 100) : 0) + '%';
-        }
-
-        // ============================================================
-        // ENGINE INJEKSI DATA DINAMIS (ULASAN, TOPIK, KONSELOR)
-        // ============================================================
-        async function inisiasiDataDinamis() {
-            if (typeof window.supabaseClient === 'undefined') return;
-            const client = window.supabaseClient;
-
-            // 1. Tarik Data Ulasan
-            const { data: ulasanData } = await client.from('ulasan_sesi').select('*').order('id', { ascending: true }).limit(3);
-            if (ulasanData) {
-                const ulasanHTML = ulasanData.map(item => `
-                    <div class="bg-white p-6 rounded-3xl border border-gray-100 card-shadow flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="text-[#F59E0B] text-xs tracking-widest">${'★'.repeat(item.rating)}</div>
-                                <span class="text-[10px] text-gray-400">${item.waktu}</span>
-                            </div>
-                            <p class="text-sm text-gray-600 leading-relaxed mb-6">"${item.teks_ulasan}"</p>
-                        </div>
-                        <div class="flex items-center gap-3 pt-4 border-t border-gray-50">
-                            <div class="w-8 h-8 rounded-full bg-slate-200"></div>
-                            <h4 class="text-[11px] font-bold text-gray-800">${item.identitas}</h4>
-                        </div>
-                    </div>
-                `).join('');
-                document.getElementById('ulasanContainer').innerHTML = ulasanHTML;
-            }
-
-            // 2. Tarik Data Topik
-            const { data: topikData } = await client.from('topik_konseling').select('*').order('persentase', { ascending: false });
-            if (topikData) {
-                const topikHTML = topikData.map(item => `
-                    <div>
-                        <div class="flex justify-between text-xs font-bold text-gray-900 mb-2">
-                            <span>${item.nama_topik}</span>
-                            <span style="color: ${item.kode_warna_hex}">${item.persentase}%</span>
-                        </div>
-                        <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div style="background-color: ${item.kode_warna_hex}; width: ${item.persentase}%" class="h-full rounded-full"></div>
-                        </div>
-                    </div>
-                `).join('');
-                document.getElementById('topikContainer').innerHTML = topikHTML;
-            }
-
-            // 3. Tarik Data Konselor & Inisialisasi Grafik
-            const { data: konselorData } = await client.from('profil_konselor').select('*').order('kepuasan_persen', { ascending: false });
-            if (konselorData) {
-                const konselorHTML = konselorData.map((item, index) => {
-                    const statusHTML = item.status_tersedia 
-                        ? `<span class="bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 border border-green-100"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Tersedia</span>`
-                        : `<span class="bg-gray-100 text-gray-500 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 border border-gray-200">Sesi Penuh</span>`;
-                    
-                    const chartId = `dynamicChart_${item.id}`;
-
-                    return `
-                    <div class="px-6 md:px-10 mb-4">
-                        <div onclick="toggleAccordion('detail-${item.id}')" class="cursor-pointer flex flex-col md:flex-row items-start md:items-center justify-between p-4 px-6 md:px-8 bg-white rounded-3xl md:rounded-full shadow-sm hover:shadow-md border border-transparent hover:border-brand-blue/20 transition-all">
-                            <div class="w-full md:w-1/3 flex items-center gap-4 mb-3 md:mb-0">
-                                <div class="w-10 h-10 flex items-center justify-center font-bold text-xs rounded-full" style="background-color: ${item.warna_bg}; color: ${item.warna_teks};">${item.inisial}</div>
-                                <div>
-                                    <h3 class="font-bold text-gray-900 text-sm group-hover:text-brand-blue transition">${item.nama_lengkap}</h3>
-                                    <p class="text-[10px] text-gray-400">Level: ${item.level}</p>
-                                </div>
-                            </div>
-                            <div class="w-full md:w-1/4 text-xs text-gray-600 font-medium mb-3 md:mb-0">${item.jurusan}</div>
-                            <div class="w-full md:w-1/4 flex items-center gap-1.5 text-xs font-bold text-gray-800 mb-3 md:mb-0">
-                                <span class="text-[#10B981]">★</span> ${item.kepuasan_persen}% <span class="text-[10px] text-gray-400 font-normal">(${item.total_sesi} Sesi)</span>
-                            </div>
-                            <div class="w-full md:w-1/6 flex justify-start md:justify-end">${statusHTML}</div>
-                        </div>
-
-                        <div id="detail-${item.id}" class="counselor-detail hidden mt-6 mb-8 px-2 md:px-8 fade-in-down">
-                            <div class="bg-white rounded-[20px] p-8 mb-6 shadow-sm border border-gray-100 flex justify-between items-center">
-                                <div>
-                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Rata-rata Minggu Ini</p>
-                                    <div class="flex items-baseline gap-2 mb-2">
-                                        <h3 class="text-4xl font-black text-gray-900">${item.kepuasan_desimal}</h3>
-                                        <span class="text-sm font-bold text-gray-400">/ 5.0</span>
-                                    </div>
-                                </div>
-                                <div class="w-14 h-14 bg-[#004A6A] text-white rounded-full flex items-center justify-center text-xl shadow-md">★</div>
-                            </div>
-                            <div class="bg-white rounded-[20px] p-8 border border-gray-100">
-                                <div class="relative h-48 w-full"><canvas id="${chartId}"></canvas></div>
-                            </div>
-                        </div>
-                    </div>
-                    `;
-                }).join('');
-                
-                document.getElementById('konselorContainer').innerHTML = konselorHTML;
-
-                // Inisialisasi Chart.js setelah DOM terbentuk
-                const chartOptions = {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { min: 0, max: 5, ticks: { stepSize: 1, color: '#94A3B8', font: { size: 10, weight: 'bold' } }, grid: { color: '#F1F5F9' }, border: { display: false } },
-                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#94A3B8', font: { size: 10, weight: 'bold' } } }
-                    }
-                };
-
-                konselorData.forEach(item => {
-                    const ctx = document.getElementById(`dynamicChart_${item.id}`);
-                    if (ctx) {
-                        new Chart(ctx.getContext('2d'), {
-                            type: 'bar',
-                            data: {
-                                labels: ['M1', 'M2', 'M3', 'M4', 'M5'],
-                                datasets: [{
-                                    data: [0, 0, 0, 0, item.kepuasan_desimal],
-                                    backgroundColor: ['#F1F5F9', '#F1F5F9', '#F1F5F9', '#F1F5F9', '#0F172A'],
-                                    borderRadius: 4, barThickness: 32
-                                }]
-                            },
-                            options: chartOptions
-                        });
-                    }
-                });
-            }
-        }
-
-        // Fungsi Global untuk Accordion
-        window.toggleAccordion = function(id) {
-            const target = document.getElementById(id);
-            const isHidden = target.classList.contains('hidden');
-            document.querySelectorAll('.counselor-detail').forEach(el => el.classList.add('hidden'));
-            if (isHidden) target.classList.remove('hidden');
-        };
-    </script>
 </body>
 </html>
