@@ -31,17 +31,18 @@
         .search-shadow { box-shadow: 0 10px 30px -5px rgba(0, 102, 143, 0.08); }
         .card-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
         
-        /* Animasi Diagram Batang */
-        .bar-grow { transform-origin: bottom; animation: growUp 1.5s ease-out forwards; }
-        @keyframes growUp { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-        
-        .fade-in-text { opacity: 0; animation: fadeIn 0.5s ease-out 1.2s forwards; }
-        @keyframes fadeIn { to { opacity: 1; } }
+        /* Animasi Transisi Accordion */
+        .fade-in-down { animation: fadeInDown 0.3s ease-out forwards; }
+        @keyframes fadeInDown { 
+            from { opacity: 0; transform: translateY(-10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
     </style>
 </head>
 <body class="bg-white font-sans text-gray-800 min-h-screen flex flex-col">
 
-    <nav class="flex justify-between items-center px-6 md:px-12 py-5 bg-white z-50 relative border-b border-gray-100">
+    <!-- NAVBAR DISINKRONISASI -->
+    <nav class="flex justify-between items-center px-6 md:px-12 py-5 bg-white z-50 sticky top-0 border-b border-gray-100">
         <div class="text-brand-blue font-semibold italic text-lg tracking-wide">Polimedia Peer Counselor</div>
         <div class="hidden md:flex gap-8 text-sm font-medium text-gray-500">
             <a href="index.html" class="text-brand-blue font-bold border-b-2 border-brand-blue pb-1">Beranda</a>
@@ -53,16 +54,17 @@
         <div class="flex gap-4 text-gray-400 items-center">
             <button class="hover:text-brand-blue transition text-xl">🔔</button>
             <a href="login.html" title="Login / Register" class="w-8 h-8 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition cursor-pointer text-gray-400 hover:text-brand-blue overflow-hidden">
-                <!-- Avatar dinamis akan dimuat oleh api.js ke class ini jika user login -->
+                <!-- Avatar dinamis akan dimuat oleh api.js -->
                 <img data-nav="avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" alt="User Avatar" class="w-full h-full object-cover">
             </a>
-            <!-- Tombol Logout (Otomatis ditangani oleh api.js jika diklik) -->
+            <!-- Tombol Logout -->
             <button data-action="logout" class="text-xs font-bold text-red-500 hover:underline hidden" id="btnLogout">Keluar</button>
         </div>
     </nav>
 
     <main class="w-full flex-grow">
 
+        <!-- HERO SECTION -->
         <div class="max-w-[1300px] mx-auto w-full px-4 md:px-6 mt-4">
             <section class="bg-hero-bg rounded-[40px] px-8 py-16 md:px-16 md:pt-20 md:pb-32 relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-96 h-96 bg-white opacity-40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
@@ -94,27 +96,26 @@
             </section>
         </div>
 
+        <!-- HIGHLIGHT STATS -->
         <div class="max-w-[1200px] mx-auto w-full px-6 -mt-16 relative z-20 mb-24">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Kartu Total Responden -->
                 <div class="bg-white p-8 rounded-[30px] card-shadow border border-gray-100 flex flex-col justify-between h-[160px]">
                     <div class="w-10 h-10 bg-[#EEF2FF] text-[#4F46E5] rounded-full flex items-center justify-center text-sm mb-2">👥</div>
                     <div class="flex justify-between items-end">
                         <div>
-                            <h3 class="text-4xl font-black text-gray-900 leading-none mb-1" data-stat="total-responden">0</h3>
+                            <h3 class="text-4xl font-black text-gray-900 leading-none mb-1">1,240</h3>
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total Responden</p>
                         </div>
                         <span class="bg-[#D9F99D] text-green-800 text-[10px] font-bold px-3 py-1 rounded-full mb-1">+12%</span>
                     </div>
                 </div>
 
-                <!-- Kartu Rata-rata Skor -->
                 <div class="bg-white p-8 rounded-[30px] card-shadow border border-gray-100 flex flex-col justify-between h-[160px]">
                     <div class="w-10 h-10 bg-[#DCFCE7] text-[#16A34A] rounded-full flex items-center justify-center text-sm mb-2">★</div>
                     <div class="flex justify-between items-end">
                         <div>
                             <div class="flex items-baseline gap-1 mb-1">
-                                <h3 class="text-4xl font-black text-gray-900 leading-none" data-stat="rata-skor">0.0</h3>
+                                <h3 class="text-4xl font-black text-gray-900 leading-none">4.9</h3>
                                 <span class="text-xs font-bold text-gray-400">/ 5.0</span>
                             </div>
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Rata-rata Skor</p>
@@ -123,20 +124,20 @@
                     </div>
                 </div>
 
-                <!-- Kartu Rekomendasi -->
                 <div class="bg-white p-8 rounded-[30px] card-shadow border border-gray-100 flex flex-col justify-between h-[160px]">
                     <div class="w-10 h-10 bg-[#F3E8FF] text-[#9333EA] rounded-full flex items-center justify-center text-sm mb-2">🛡️</div>
                     <div class="flex justify-between items-end">
                         <div>
-                            <h3 class="text-4xl font-black text-gray-900 leading-none mb-1" data-stat="persen-rekomendasi">0%</h3>
+                            <h3 class="text-4xl font-black text-gray-900 leading-none mb-1">98%</h3>
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Persentase Rekomendasi</p>
                         </div>
-                        <span class="bg-[#E0F2FE] text-[#0284C7] text-[10px] font-bold px-3 py-1 rounded-full mb-1">Trust</span>
+                        <span class="bg-[#F3E8FF] text-[#9333EA] text-[10px] font-bold px-3 py-1 rounded-full mb-1">Trust</span>
                     </div>
-                </div>            
+                </div>
             </div>
         </div>
 
+        <!-- TESTIMONIALS -->
         <section class="max-w-[1200px] mx-auto px-6 mb-24">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
                 <div>
@@ -146,12 +147,53 @@
                 <a href="#" class="text-sm font-bold text-brand-blue hover:text-brand-dark transition">Lihat semua (10+) ></a>
             </div>
 
-            <!-- CONTAINER ULASAN DINAMIS -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-section="ulasan">
-                <div class="col-span-3 text-center py-10 text-gray-400 text-sm">Memuat cerita...</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Testi 1 -->
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 card-shadow flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="text-[#F59E0B] text-xs tracking-widest">★★★★★</div>
+                            <span class="text-[10px] text-gray-400">1 minggu lalu</span>
+                        </div>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-6">"Saya tidak menyangka prosesnya sangat cepat dan membantu. Kak Siti sangat suportif..."</p>
+                    </div>
+                    <div class="flex items-center gap-3 pt-4 border-t border-gray-50">
+                        <div class="w-8 h-8 rounded-full bg-slate-200"></div>
+                        <h4 class="text-[11px] font-bold text-gray-800">Anonim (Mahasiswa Semester 4)</h4>
+                    </div>
+                </div>
+                <!-- Testi 2 -->
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 card-shadow flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="text-[#F59E0B] text-xs tracking-widest">★★★★★</div>
+                            <span class="text-[10px] text-gray-400">2 minggu lalu</span>
+                        </div>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-6">"Awalnya ragu, tapi setelah coba ngobrol, ternyata konselornya sangat profesional."</p>
+                    </div>
+                    <div class="flex items-center gap-3 pt-4 border-t border-gray-50">
+                        <div class="w-8 h-8 rounded-full bg-slate-200"></div>
+                        <h4 class="text-[11px] font-bold text-gray-800">R.A (Desain Komunikasi Visual)</h4>
+                    </div>
+                </div>
+                <!-- Testi 3 -->
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 card-shadow flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="text-[#F59E0B] text-xs tracking-widest">★★★★★</div>
+                            <span class="text-[10px] text-gray-400">3 minggu lalu</span>
+                        </div>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-6">"Sangat membantu saat saya sedang cemas dengan tugas akhir. Sangat melegakan."</p>
+                    </div>
+                    <div class="flex items-center gap-3 pt-4 border-t border-gray-50">
+                        <div class="w-8 h-8 rounded-full bg-slate-200"></div>
+                        <h4 class="text-[11px] font-bold text-gray-800">Dimas (Broadcasting)</h4>
+                    </div>
+                </div>
             </div>
         </section>
 
+        <!-- TOPIK KONSELING -->
         <section class="max-w-[1200px] mx-auto px-6 mb-24">
             <div class="flex justify-between items-end mb-8">
                 <div>
@@ -161,17 +203,43 @@
                 <a href="pilih-konselor.html" class="text-sm font-bold text-brand-blue hover:text-brand-dark transition hidden md:block">Lihat semua topik ></a>
             </div>
 
-            <!-- CONTAINER TOPIK DINAMIS -->
-            <div class="space-y-6" data-section="topik-stats">
-                <div class="text-center py-4 text-gray-400 text-sm">Memuat topik populer...</div>
+            <div class="space-y-6">
+                <div>
+                    <div class="flex justify-between text-xs font-bold text-gray-900 mb-2">
+                        <span>AKADEMIK</span>
+                        <span class="text-brand-blue">68%</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="bg-brand-blue h-full w-[68%] rounded-full"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs font-bold text-gray-900 mb-2">
+                        <span>PENGEMBANGAN DIRI</span>
+                        <span class="text-[#4D7C0F]">45%</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="bg-[#4D7C0F] h-full w-[45%] rounded-full"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs font-bold text-gray-900 mb-2">
+                        <span>KESEHATAN MENTAL</span>
+                        <span class="text-[#4F46E5]">12%</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="bg-[#4F46E5] h-full w-[12%] rounded-full"></div>
+                    </div>
+                </div>
             </div>
         </section>
 
+        <!-- KONSELOR TERBAIK DENGAN ACCORDION -->
         <section class="max-w-[1200px] mx-auto px-6 mb-20">
             <h2 class="text-[28px] font-extrabold text-gray-900 mb-1">Konselor Terbaik Bulan Ini</h2>
             <p class="text-gray-500 text-sm mb-6">Berdasarkan tingkat kepuasan dan ketersediaan waktu untuk kawan sebaya.</p>
 
-            <div class="bg-[#F8FAFC] rounded-[40px] pt-8 pb-12 border border-gray-100">
+            <div class="bg-[#F8FAFC] rounded-[40px] pt-8 pb-8 border border-gray-100">
                 
                 <div class="hidden md:flex text-[10px] font-bold text-gray-400 uppercase tracking-widest px-12 pb-4">
                     <div class="w-1/3">Konselor</div>
@@ -180,54 +248,209 @@
                     <div class="w-1/6 text-right">Status</div>
                 </div>
 
-                <!-- CONTAINER DAFTAR KONSELOR DINAMIS -->
-                <div class="px-6 md:px-10 space-y-4 mb-12" data-section="konselor-terbaik">
-                    <div class="text-center py-8 text-gray-400 text-sm">Memuat data konselor...</div>
-                </div>
-
-                <!-- BAGIAN STATISTIK KEPUASAN -->
-                <div class="px-6 md:px-10">
-                    <h2 class="text-2xl font-extrabold text-gray-900 mb-1">Kepuasan Pengguna</h2>
-                    <p class="text-gray-500 text-sm mb-6">Pantau kenyamanan dan kualitas pengalaman sesi Anda secara keseluruhan.</p>
-
-                    <div class="bg-white rounded-[20px] p-8 mb-6 shadow-sm border border-gray-100 flex justify-between items-center">
-                        <div>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Rata-rata Minggu Ini</p>
-                            <div class="flex items-baseline gap-2 mb-2">
-                                <h3 class="text-4xl font-black text-gray-900" data-stat="rata-skor-minggu">4.9</h3>
-                                <span class="text-sm font-bold text-gray-400">/ 5.0</span>
+                <!-- =============================== -->
+                <!-- KONSELOR 1: ADITYA SYAHPUTRA    -->
+                <!-- =============================== -->
+                <div class="px-6 md:px-10 mb-4">
+                    <div onclick="toggleAccordion('detail-1')" class="cursor-pointer flex flex-col md:flex-row items-start md:items-center justify-between p-4 px-6 md:px-8 bg-white rounded-3xl md:rounded-full shadow-sm hover:shadow-md border border-transparent hover:border-brand-blue/20 transition-all">
+                        <div class="w-full md:w-1/3 flex items-center gap-4 mb-3 md:mb-0">
+                            <div class="w-10 h-10 bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center font-bold text-xs rounded-full">AS</div>
+                            <div>
+                                <h3 class="font-bold text-gray-900 text-sm group-hover:text-brand-blue transition">Aditya Syahputra</h3>
+                                <p class="text-[10px] text-gray-400">Level: Senior Peer</p>
                             </div>
-                            <span class="text-xs font-semibold text-[#0284C7] flex items-center gap-1">Peringkat stabil dan positif</span>
                         </div>
-                        <div class="w-14 h-14 bg-[#004A6A] text-white rounded-full flex items-center justify-center text-xl shadow-md">★</div>
-                    </div>
-
-                    <div class="bg-white rounded-[20px] p-8 mb-6 shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-center mb-8">
-                            <h4 class="font-bold text-gray-800 text-sm">Tren Mingguan</h4>
-                            <span class="text-[10px] text-gray-400 font-bold flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-[#0F172A]"></span> Skor Kepuasan
+                        <div class="w-full md:w-1/4 text-xs text-gray-600 font-medium mb-3 md:mb-0">Teknik Grafika</div>
+                        <div class="w-full md:w-1/4 flex items-center gap-1.5 text-xs font-bold text-gray-800 mb-3 md:mb-0">
+                            <span class="text-[#10B981]">★</span> 95% <span class="text-[10px] text-gray-400 font-normal">(120+ Sesi)</span>
+                        </div>
+                        <div class="w-full md:w-1/6 flex justify-start md:justify-end">
+                            <span class="bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 border border-green-100">
+                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Tersedia
                             </span>
                         </div>
-                        
-                        <div class="relative h-48 w-full mt-4">
-                            <!-- Canvas Chart.js dibiarkan kosong, api.js akan merendernya otomatis -->
-                            <canvas id="trenChart"></canvas>
+                    </div>
+
+                    <!-- Area Detail 1 -->
+                    <div id="detail-1" class="counselor-detail hidden mt-6 mb-8 px-2 md:px-8 fade-in-down">
+                        <h2 class="text-2xl font-extrabold text-gray-900 mb-1">Kepuasan Pengguna</h2>
+                        <p class="text-gray-500 text-sm mb-6">Pantau kenyamanan dan kualitas pengalaman sesi Anda.</p>
+
+                        <div class="bg-white rounded-[20px] p-8 mb-6 shadow-sm border border-gray-100 flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Rata-rata Minggu Ini</p>
+                                <div class="flex items-baseline gap-2 mb-2">
+                                    <h3 class="text-4xl font-black text-gray-900">4.8</h3>
+                                    <span class="text-sm font-bold text-gray-400">/ 5.0</span>
+                                </div>
+                                <span class="text-xs font-semibold text-[#0284C7] flex items-center gap-1">📈 Naik 4% dari minggu lalu</span>
+                            </div>
+                            <div class="w-14 h-14 bg-[#004A6A] text-white rounded-full flex items-center justify-center text-xl shadow-md">★</div>
+                        </div>
+
+                        <div class="bg-white rounded-[20px] p-8 mb-6 shadow-sm border border-gray-100">
+                            <div class="flex justify-between items-center mb-8">
+                                <h4 class="font-bold text-gray-800 text-sm">Tren Mingguan</h4>
+                                <span class="text-[10px] text-gray-400 font-bold flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#0F172A]"></span> Skor Kepuasan
+                                </span>
+                            </div>
+                            <div class="relative h-48 w-full mt-4">
+                                <canvas id="trenChart1"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-[#EEF2FF] p-6 rounded-2xl">
+                                <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
+                                    <span class="text-blue-500">🛡️</span> Kualitas Koneksi
+                                </h4>
+                                <p class="text-xs text-gray-600 leading-relaxed">Anda secara konsisten memberikan rating tinggi untuk aspek komunikasi empati dengan konselor.</p>
+                            </div>
+                            <div class="bg-[#EEF2FF] p-6 rounded-2xl">
+                                <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
+                                    <span class="text-blue-500">⏱️</span> Ketepatan Waktu
+                                </h4>
+                                <p class="text-xs text-gray-600 leading-relaxed">95% sesi dimulai tepat waktu, memberikan Anda ketenangan dalam memulai sesi terapi.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =============================== -->
+                <!-- KONSELOR 2: NAQILA MAULIDA      -->
+                <!-- =============================== -->
+                <div class="px-6 md:px-10 mb-4">
+                    <div onclick="toggleAccordion('detail-2')" class="cursor-pointer flex flex-col md:flex-row items-start md:items-center justify-between p-4 px-6 md:px-8 bg-white rounded-3xl md:rounded-full shadow-sm hover:shadow-md border border-transparent hover:border-brand-blue/20 transition-all">
+                        <div class="w-full md:w-1/3 flex items-center gap-4 mb-3 md:mb-0">
+                            <div class="w-10 h-10 bg-[#E0E7FF] text-[#4F46E5] flex items-center justify-center font-bold text-xs rounded-full">NM</div>
+                            <div>
+                                <h3 class="font-bold text-gray-900 text-sm group-hover:text-brand-blue transition">Naqila Maulida</h3>
+                                <p class="text-[10px] text-gray-400">Level: Advocate</p>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/4 text-xs text-gray-600 font-medium mb-3 md:mb-0">Penerbitan</div>
+                        <div class="w-full md:w-1/4 flex items-center gap-1.5 text-xs font-bold text-gray-800 mb-3 md:mb-0">
+                            <span class="text-[#10B981]">★</span> 90% <span class="text-[10px] text-gray-400 font-normal">(96 Sesi)</span>
+                        </div>
+                        <div class="w-full md:w-1/6 flex justify-start md:justify-end">
+                            <span class="bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 border border-green-100">
+                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Tersedia
+                            </span>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-[#EEF2FF] p-6 rounded-2xl">
-                            <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
-                                <span class="text-blue-500">🛡️</span> Kualitas Koneksi
-                            </h4>
-                            <p class="text-xs text-gray-600 leading-relaxed">Anda secara konsisten memberikan rating tinggi untuk aspek komunikasi empati dengan konselor.</p>
+                    <!-- Area Detail 2 -->
+                    <div id="detail-2" class="counselor-detail hidden mt-6 mb-8 px-2 md:px-8 fade-in-down">
+                        <h2 class="text-2xl font-extrabold text-gray-900 mb-1">Kepuasan Pengguna</h2>
+                        <p class="text-gray-500 text-sm mb-6">Pantau kenyamanan dan kualitas pengalaman sesi Anda.</p>
+
+                        <div class="bg-white rounded-[20px] p-8 mb-6 shadow-sm border border-gray-100 flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Rata-rata Minggu Ini</p>
+                                <div class="flex items-baseline gap-2 mb-2">
+                                    <h3 class="text-4xl font-black text-gray-900">4.5</h3>
+                                    <span class="text-sm font-bold text-gray-400">/ 5.0</span>
+                                </div>
+                                <span class="text-xs font-semibold text-green-600 flex items-center gap-1">Stabil</span>
+                            </div>
+                            <div class="w-14 h-14 bg-[#004A6A] text-white rounded-full flex items-center justify-center text-xl shadow-md">★</div>
                         </div>
-                        <div class="bg-[#EEF2FF] p-6 rounded-2xl">
-                            <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
-                                <span class="text-blue-500">⏱️</span> Ketepatan Waktu
-                            </h4>
-                            <p class="text-xs text-gray-600 leading-relaxed">98% sesi dimulai tepat waktu, memberikan Anda ketenangan dalam memulai sesi terapi.</p>
+
+                        <div class="bg-white rounded-[20px] p-8 mb-6 shadow-sm border border-gray-100">
+                            <div class="flex justify-between items-center mb-8">
+                                <h4 class="font-bold text-gray-800 text-sm">Tren Mingguan</h4>
+                                <span class="text-[10px] text-gray-400 font-bold flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#0F172A]"></span> Skor Kepuasan
+                                </span>
+                            </div>
+                            <div class="relative h-48 w-full mt-4">
+                                <canvas id="trenChart2"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-[#EEF2FF] p-6 rounded-2xl">
+                                <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
+                                    <span class="text-blue-500">🛡️</span> Kualitas Koneksi
+                                </h4>
+                                <p class="text-xs text-gray-600 leading-relaxed">Koneksi sangat stabil selama sesi berlangsung tanpa adanya gangguan berarti.</p>
+                            </div>
+                            <div class="bg-[#EEF2FF] p-6 rounded-2xl">
+                                <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
+                                    <span class="text-blue-500">⏱️</span> Ketepatan Waktu
+                                </h4>
+                                <p class="text-xs text-gray-600 leading-relaxed">Konselor sangat tepat waktu dan responsif dalam membalas sapaan awal.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =============================== -->
+                <!-- KONSELOR 3: RIZKY FAUZAN        -->
+                <!-- =============================== -->
+                <div class="px-6 md:px-10 mb-4">
+                    <div onclick="toggleAccordion('detail-3')" class="cursor-pointer flex flex-col md:flex-row items-start md:items-center justify-between p-4 px-6 md:px-8 bg-white rounded-3xl md:rounded-full shadow-sm hover:shadow-md border border-transparent hover:border-brand-blue/20 transition-all">
+                        <div class="w-full md:w-1/3 flex items-center gap-4 mb-3 md:mb-0">
+                            <div class="w-10 h-10 bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center font-bold text-xs rounded-full">RF</div>
+                            <div>
+                                <h3 class="font-bold text-gray-900 text-sm group-hover:text-brand-blue transition">Rizky Fauzan</h3>
+                                <p class="text-[10px] text-gray-400">Level: Peer Supporter</p>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/4 text-xs text-gray-600 font-medium mb-3 md:mb-0">Animasi</div>
+                        <div class="w-full md:w-1/4 flex items-center gap-1.5 text-xs font-bold text-gray-800 mb-3 md:mb-0">
+                            <span class="text-[#10B981]">★</span> 80% <span class="text-[10px] text-gray-400 font-normal">(82 Sesi)</span>
+                        </div>
+                        <div class="w-full md:w-1/6 flex justify-start md:justify-end">
+                            <span class="bg-gray-100 text-gray-500 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 border border-gray-200">
+                                Sesi Penuh
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Area Detail 3 -->
+                    <div id="detail-3" class="counselor-detail hidden mt-6 mb-8 px-2 md:px-8 fade-in-down">
+                        <h2 class="text-2xl font-extrabold text-gray-900 mb-1">Kepuasan Pengguna</h2>
+                        <p class="text-gray-500 text-sm mb-6">Pantau kenyamanan dan kualitas pengalaman sesi Anda.</p>
+
+                        <div class="bg-white rounded-[20px] p-8 mb-6 shadow-sm border border-gray-100 flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Rata-rata Minggu Ini</p>
+                                <div class="flex items-baseline gap-2 mb-2">
+                                    <h3 class="text-4xl font-black text-gray-900">4.1</h3>
+                                    <span class="text-sm font-bold text-gray-400">/ 5.0</span>
+                                </div>
+                                <span class="text-xs font-semibold text-rose-500 flex items-center gap-1">📉 Turun 2% dari minggu lalu</span>
+                            </div>
+                            <div class="w-14 h-14 bg-[#004A6A] text-white rounded-full flex items-center justify-center text-xl shadow-md">★</div>
+                        </div>
+
+                        <div class="bg-white rounded-[20px] p-8 mb-6 shadow-sm border border-gray-100">
+                            <div class="flex justify-between items-center mb-8">
+                                <h4 class="font-bold text-gray-800 text-sm">Tren Mingguan</h4>
+                                <span class="text-[10px] text-gray-400 font-bold flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#0F172A]"></span> Skor Kepuasan
+                                </span>
+                            </div>
+                            <div class="relative h-48 w-full mt-4">
+                                <canvas id="trenChart3"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-[#EEF2FF] p-6 rounded-2xl">
+                                <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
+                                    <span class="text-blue-500">🛡️</span> Kualitas Koneksi
+                                </h4>
+                                <p class="text-xs text-gray-600 leading-relaxed">Cukup baik, meskipun terdapat beberapa laporan keterlambatan respon sinyal.</p>
+                            </div>
+                            <div class="bg-[#EEF2FF] p-6 rounded-2xl">
+                                <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
+                                    <span class="text-blue-500">⏱️</span> Ketepatan Waktu
+                                </h4>
+                                <p class="text-xs text-gray-600 leading-relaxed">Sebagian besar sesi berlangsung sesuai jadwal, walau jadwal saat ini sedang penuh.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -236,7 +459,8 @@
         </section>
     </main>
 
-    <footer class="w-full bg-white pt-16 pb-8 px-6 md:px-12">
+    <!-- FOOTER -->
+    <footer class="w-full bg-white pt-16 pb-8 px-6 md:px-12 border-t border-gray-50">
         <div class="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <div>
                 <h2 class="text-brand-blue font-semibold italic text-xl tracking-wide mb-4">Polimedia Peer Counselor</h2>
@@ -266,18 +490,109 @@
         </div>
     </footer>
 
+    <!-- SKRIP UTAMA: API DAN AUTENTIKASI -->
     <script src="js/api.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            
-            if (session) {
-                const btnLogout = document.getElementById('btnLogout');
-                if (btnLogout) {
-                    btnLogout.classList.remove('hidden');
+            if (typeof window.supabaseClient !== 'undefined') {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (session) {
+                    const btnLogout = document.getElementById('btnLogout');
+                    if (btnLogout) {
+                        btnLogout.classList.remove('hidden');
+                    }
                 }
             }
+        });
+    </script>
+
+    <!-- SKRIP UNTUK ACCORDION & 3 CHART BEDA -->
+    <script>
+        // Logika Buka Tutup (Accordion)
+        function toggleAccordion(id) {
+            const target = document.getElementById(id);
+            const isHidden = target.classList.contains('hidden');
+            
+            // Sembunyikan semua detail terlebih dahulu
+            document.querySelectorAll('.counselor-detail').forEach(el => {
+                el.classList.add('hidden');
+            });
+
+            // Tampilkan baris yang diklik jika sebelumnya tersembunyi
+            if (isHidden) {
+                target.classList.remove('hidden');
+            }
+        }
+
+        // Konfigurasi Standar untuk Chart agar kodenya tidak kepanjangan
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    min: 0, max: 5,
+                    ticks: { stepSize: 1, color: '#94A3B8', font: { size: 10, weight: 'bold' } },
+                    grid: { color: '#F1F5F9' },
+                    border: { display: false }
+                },
+                x: {
+                    grid: { display: false },
+                    border: { display: false },
+                    ticks: { color: '#94A3B8', font: { size: 10, weight: 'bold' } }
+                }
+            }
+        };
+
+        const chartColors = ['#F1F5F9', '#F1F5F9', '#F1F5F9', '#F1F5F9', '#0F172A'];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Chart 1: Aditya (4.8)
+            new Chart(document.getElementById('trenChart1').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5'],
+                    datasets: [{
+                        label: 'Skor Kepuasan',
+                        data: [0, 0, 0, 0, 4.8], 
+                        backgroundColor: chartColors,
+                        borderRadius: 4, barThickness: 32
+                    }]
+                },
+                options: chartOptions
+            });
+
+            // Chart 2: Naqila (4.5)
+            new Chart(document.getElementById('trenChart2').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5'],
+                    datasets: [{
+                        label: 'Skor Kepuasan',
+                        data: [0, 0, 0, 0, 4.5], 
+                        backgroundColor: chartColors,
+                        borderRadius: 4, barThickness: 32
+                    }]
+                },
+                options: chartOptions
+            });
+
+            // Chart 3: Rizky (4.1)
+            new Chart(document.getElementById('trenChart3').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5'],
+                    datasets: [{
+                        label: 'Skor Kepuasan',
+                        data: [0, 0, 0, 0, 4.1], 
+                        backgroundColor: chartColors,
+                        borderRadius: 4, barThickness: 32
+                    }]
+                },
+                options: chartOptions
+            });
+
         });
     </script>
 </body>
