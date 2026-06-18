@@ -1,8 +1,7 @@
 /**
  * ============================================================================
- * Polimedia Peer Counselor — Sentralisasi Lapisan Integrasi (js/api.js)
+ * Polimedia Peer Counselor — Supabase Integration Layer (js/api.js)
  * ============================================================================
- * Pusat kendali operasi asinkronus frontend-only yang terhubung ke Supabase.
  */
 
 // ----------------------------------------------------------------------
@@ -57,7 +56,7 @@ function waktuRelatif(tanggalStr) {
 const auth = {
     async getSession() {
         const { data, error } = await supabaseClient.auth.getSession();
-        if (error) { console.error('getSession error:', error); return null; }
+        if (error) return null;
         return data.session;
     },
     async getProfile() {
@@ -114,14 +113,13 @@ function initLoginPage() {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
         if (error) {
-            alert('Login gagal: ' + (error.message === 'Invalid login credentials' ? 'Email atau sandi salah.' : error.message));
+            alert('Login gagal: Email atau sandi salah.');
             submitBtn.disabled = false; submitBtn.innerHTML = originalText; return;
         }
         const { data: profile } = await supabaseClient.from('users').select('role').eq('id', data.user.id).single();
         window.location.href = (profile && profile.role === 'konselor') ? 'counselor-dashboard.html' : 'index.html';
     };
 
-    // TUGAS 1.1 — Pemetaan ID Absolut Formulir Registrasi
     window.handleRegister = async (e) => {
         e.preventDefault();
         const form = e.target;
@@ -131,12 +129,10 @@ function initLoginPage() {
         const nama_lengkap = document.getElementById('regNama').value.trim();
         const nim = document.getElementById('regNIM').value.trim();
         const program_studi = document.getElementById('regProdi').value;
-        const semester = parseInt(document.getElementById('regSemester').value, 10);
-        const telepon = document.getElementById('regWA').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
 
-        if (!nama_lengkap || !nim || !program_studi || !semester || !email || !password) {
+        if (!nama_lengkap || !nim || !program_studi || !email || !password) {
             alert('Mohon lengkapi semua data wajib.'); return;
         }
 
@@ -144,16 +140,15 @@ function initLoginPage() {
 
         try {
             const { data, error: authError } = await supabaseClient.auth.signUp({
-                email,
-                password,
-                options: { data: { nama_lengkap, nim, program_studi, semester, telepon, role: 'mahasiswa' } }
+                email, password,
+                options: { data: { nama_lengkap, nim, program_studi, role: 'mahasiswa' } }
             });
 
             if (authError) throw authError;
 
             if (data && data.user) {
                 const { error: dbError } = await supabaseClient.from('users').insert([
-                    { id: data.user.id, nama_lengkap, nim, program_studi, role: 'mahasiswa', avatar_seed: nama_lengkap }
+                    { id: data.user.id, email: email, nama_lengkap, nim, program_studi, role: 'mahasiswa', avatar_seed: nama_lengkap }
                 ]);
 
                 if (dbError) throw dbError;
@@ -202,7 +197,7 @@ async function initIndexPage() {
         if (!container) return;
         const { data: ulasan } = await supabaseClient
             .from('penilaian')
-            .select('komentar, skor_total, created_at, sesi(users:mahasiswa_id(program_studi))')
+            .select('komentar, skor_total, created_at, sesi!inner(users(program_studi))')
             .not('komentar', 'is', null).order('created_at', { ascending: false }).limit(3);
 
         if (ulasan && ulasan.length > 0) {
@@ -225,7 +220,7 @@ async function initIndexPage() {
                 </div>`;
             }).join('');
         } else {
-            container.innerHTML = '<div class="col-span-3 text-center py-10 text-gray-400 text-sm">Belum ada ulasan tersedia dari tabel penilaian.</div>';
+            container.innerHTML = '<div class="col-span-3 text-center py-10 text-gray-400 text-sm">Belum ada ulasan tersedia. Selesaikan sesi pertama Anda.</div>';
         }
     }
 
@@ -252,7 +247,7 @@ async function initIndexPage() {
                 </div>`;
             }).join('');
         } else {
-            container.innerHTML = '<div class="text-center py-4 text-gray-400 text-sm">Belum ada data distribusi topik di tabel sesi.</div>';
+            container.innerHTML = '<div class="text-center py-4 text-gray-400 text-sm">Belum ada data distribusi topik.</div>';
         }
     }
 
@@ -261,7 +256,7 @@ async function initIndexPage() {
         if (!container) return;
         const { data: konselor } = await supabaseClient
             .from('konselor')
-            .select('id, level, jurusan, status, total_sesi, rating_rata, users:user_id(nama_lengkap, avatar_seed)')
+            .select('id, level, jurusan, status, total_sesi, rating_rata, users(nama_lengkap, avatar_seed)')
             .order('rating_rata', { ascending: false }).limit(3);
 
         if (konselor && konselor.length > 0) {
@@ -297,7 +292,7 @@ async function initIndexPage() {
                 </div>`;
             }).join('');
 
-            // TUGAS 3.3 — Implementasi Kueri Nyata Grafik Tren Penilaian per Bulan
+            // Memuat Chart Tren Penilaian Konselor
             if (typeof Chart !== 'undefined') {
                 for (const k of konselor) {
                     const ctx = document.getElementById(`dynamicChart_${k.id}`);
@@ -308,23 +303,16 @@ async function initIndexPage() {
                         .select('skor_total, created_at, sesi!inner(konselor_id)')
                         .eq('sesi.konselor_id', k.id);
 
-                    const bulanan = {};
-                    const labelBulan = [];
-                    const dataPoin = [];
-                    const skrg = new Date();
+                    const bulanan = {}; const labelBulan = []; const dataPoin = []; const skrg = new Date();
 
                     for (let i = 4; i >= 0; i--) {
                         const d = new Date(skrg.getFullYear(), skrg.getMonth() - i, 1);
                         const kuncian = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                        bulanan[kuncian] = [];
-                        labelBulan.push(d.toLocaleDateString('id-ID', { month: 'short' }));
+                        bulanan[kuncian] = []; labelBulan.push(d.toLocaleDateString('id-ID', { month: 'short' }));
                     }
 
                     if (listPenilaian) {
-                        listPenilaian.forEach(p => {
-                            const m = p.created_at.slice(0, 7);
-                            if (bulanan[m]) bulanan[m].push(p.skor_total);
-                        });
+                        listPenilaian.forEach(p => { const m = p.created_at.slice(0, 7); if (bulanan[m]) bulanan[m].push(p.skor_total); });
                     }
 
                     Object.keys(bulanan).forEach(kunci => {
@@ -335,7 +323,7 @@ async function initIndexPage() {
                     new Chart(ctx.getContext('2d'), {
                         type: 'bar',
                         data: { labels: labelBulan, datasets: [{ data: dataPoin, backgroundColor: '#0F172A', borderRadius: 4, barThickness: 32 }] },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 5 } } }
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 5 }, x: { grid: { display: false } } } }
                     });
                 }
             }
@@ -353,6 +341,8 @@ async function initIndexPage() {
 // ----------------------------------------------------------------------
 // 6. HALAMAN PILIH KONSELOR (pilih-konselor.html)
 // ----------------------------------------------------------------------
+function debounce(fn, delay) { let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); }; }
+
 async function initPilihKonselorPage() {
     const grid = qs('[data-section="konselor-grid"]'); if (!grid) return;
     const searchInput = qs('[data-filter="search"]');
@@ -361,7 +351,7 @@ async function initPilihKonselorPage() {
 
     async function loadDaftarKonselor() {
         grid.innerHTML = '<div class="col-span-3 text-center py-10 text-gray-400 text-sm">Memuat konselor...</div>';
-        const { data, error } = await supabaseClient.from('konselor').select('id, level, jurusan, spesialisasi, total_sesi, rating_rata, status, bio, users:user_id(nama_lengkap, avatar_seed, is_active)').order('rating_rata', { ascending: false });
+        const { data, error } = await supabaseClient.from('konselor').select('id, level, jurusan, spesialisasi, total_sesi, rating_rata, status, bio, users(nama_lengkap, avatar_seed, is_active)').order('rating_rata', { ascending: false });
         if (error) { grid.innerHTML = '<div class="col-span-3 text-center py-10 text-red-400 text-sm">Gagal memuat data konselor.</div>'; return; }
 
         let list = (data || []).filter(k => k.users && k.users.is_active).map(k => ({ ...k, nama_lengkap: k.users.nama_lengkap, avatar_seed: k.users.avatar_seed }));
@@ -402,10 +392,10 @@ async function initPilihKonselorPage() {
 // ----------------------------------------------------------------------
 async function initProfilKonselorPage() {
     const params = new URLSearchParams(window.location.search); const konselorId = params.get('id'); if (!konselorId) return;
-    const { data: k, error } = await supabaseClient.from('konselor').select('*, users:user_id(nama_lengkap, avatar_seed)').eq('id', konselorId).single();
+    const { data: k, error } = await supabaseClient.from('konselor').select('*, users(nama_lengkap, avatar_seed)').eq('id', konselorId).single();
     if (error || !k) { qs('main').insertAdjacentHTML('afterbegin', '<div class="text-center py-10 text-red-400 text-sm">Konselor tidak ditemukan.</div>'); return; }
 
-    setText('[data-konselor="nama"]', k.users.nama_lengkap);
+    setText('[data-konselor="nama"]', k.users?.nama_lengkap);
     setText('[data-konselor="info"]', `${k.jurusan || '-'} • ${k.level}`);
     setText('[data-konselor="rating"]', `${fmtRating(k.rating_rata)} / 5.0 (${k.total_sesi} Sesi Berhasil)`);
     setText('[data-konselor="bio"]', k.bio || '');
@@ -416,7 +406,7 @@ async function initProfilKonselorPage() {
     if (containerUlasan) {
         const { data: ulasan } = await supabaseClient
             .from('penilaian')
-            .select('komentar, skor_total, created_at, sesi(users:mahasiswa_id(program_studi))')
+            .select('komentar, skor_total, created_at, sesi!inner(konselor_id, users(program_studi))')
             .eq('sesi.konselor_id', k.id).not('komentar', 'is', null).order('created_at', { ascending: false }).limit(5);
 
         if (ulasan && ulasan.length > 0) {
@@ -440,15 +430,14 @@ async function initProfilKonselorPage() {
 // 8. HALAMAN PENJADWALAN (penjadwalan.html)
 // ----------------------------------------------------------------------
 async function initPenjadwalanPage() {
-    // TUGAS 4.2 — Role Guard Mahasiswa
     const profile = await auth.requireLogin(); if (!profile) return;
     if (profile.role !== 'mahasiswa') { window.location.href = 'index.html'; return; }
 
     const params = new URLSearchParams(window.location.search); const konselorId = params.get('konselor_id');
     const btnConfirm = document.getElementById('btn-confirm'); if (!btnConfirm || !konselorId) return;
 
-    const { data: k } = await supabaseClient.from('konselor').select('users:user_id(nama_lengkap)').eq('id', konselorId).single();
-    if (k) qsa('[data-konselor="nama-jadwal"]').forEach((el) => { el.textContent = k.users.nama_lengkap; });
+    const { data: k } = await supabaseClient.from('konselor').select('users(nama_lengkap)').eq('id', konselorId).single();
+    if (k) qsa('[data-konselor="nama-jadwal"]').forEach((el) => { el.textContent = k.users?.nama_lengkap; });
 
     let selectedDate = null, selectedTime = null;
     const dateButtons = qsa('.date-btn'), timeButtons = qsa('.time-btn');
@@ -458,8 +447,6 @@ async function initPenjadwalanPage() {
         btn.addEventListener('click', () => {
             dateButtons.forEach(b => { b.classList.remove('bg-brand-green', 'text-white'); b.classList.add('bg-green-50', 'text-brand-green'); });
             btn.classList.remove('bg-green-50', 'text-brand-green'); btn.classList.add('bg-brand-green', 'text-white');
-            
-            // TUGAS 3.1 — Perbaikan Pemilihan Tanggal Berbasis data-full-date Atribut
             selectedDate = btn.getAttribute('data-full-date');
             if (summaryDate) summaryDate.textContent = formatTanggalIndo(selectedDate);
         });
@@ -474,7 +461,7 @@ async function initPenjadwalanPage() {
     });
 
     btnConfirm.addEventListener('click', async () => {
-        if (!selectedDate || !selectedTime) { alert('Pilih tanggal dan jam.'); return; }
+        if (!selectedDate || !selectedTime) { alert('Pilih tanggal dan jam terlebih dahulu.'); return; }
         btnConfirm.disabled = true; btnConfirm.innerHTML = 'Menjadwalkan...';
         const topikSelect = document.getElementById('topik-sesi');
         const { data: sesi, error } = await supabaseClient.from('sesi').insert([{
@@ -482,7 +469,7 @@ async function initPenjadwalanPage() {
             tanggal: selectedDate, waktu_mulai: selectedTime, topik: topikSelect ? topikSelect.value : 'Umum', status: 'Menunggu'
         }]).select().single();
 
-        if (error) { alert('Gagal: ' + error.message); btnConfirm.disabled = false; btnConfirm.innerHTML = 'Konfirmasi Jadwal'; return; }
+        if (error) { alert('Gagal menjadwalkan: ' + error.message); btnConfirm.disabled = false; btnConfirm.innerHTML = 'Konfirmasi Jadwal'; return; }
         localStorage.setItem('active_session_id', sesi.id); window.location.href = 'live-chat.html?sesi_id=' + sesi.id;
     });
 }
@@ -491,7 +478,6 @@ async function initPenjadwalanPage() {
 // 9. HALAMAN LIVE CHAT (live-chat.html)
 // ----------------------------------------------------------------------
 async function initLiveChatPage() {
-    // TUGAS 4.2 — Role Guard Mahasiswa
     const profile = await auth.requireLogin(); if (!profile) return;
     if (profile.role !== 'mahasiswa') { window.location.href = 'index.html'; return; }
 
@@ -503,7 +489,7 @@ async function initLiveChatPage() {
     if (!sesiId) { window.location.href = 'pilih-konselor.html'; return; }
 
     async function loadPesan() {
-        const { data: pesan, error } = await supabaseClient.from('pesan').select('*, users:pengirim_id(nama_lengkap)').eq('sesi_id', sesiId).order('created_at', { ascending: true });
+        const { data: pesan, error } = await supabaseClient.from('pesan').select('*, users(nama_lengkap)').eq('sesi_id', sesiId).order('created_at', { ascending: true });
         if (error || !chatArea) return;
 
         chatArea.innerHTML = (pesan || []).map((p) => {
@@ -529,7 +515,7 @@ async function initLiveChatPage() {
     const btnAkhiri = document.getElementById('btn-akhiri-sesi');
     if (btnAkhiri) {
         btnAkhiri.addEventListener('click', async () => {
-            await supabaseClient.from('sesi').update({ status: 'Selesai', waktu_selesai: new Date().toTimeString().slice(0, 5) }).eq('id', sesiId);
+            await supabaseClient.from('sesi').update({ status: 'Selesai' }).eq('id', sesiId);
             window.location.href = `ringkasan-sesi.html?sesi_id=${sesiId}`;
         });
     }
@@ -540,14 +526,14 @@ async function initLiveChatPage() {
 // ----------------------------------------------------------------------
 async function initRingkasanSesiPage() {
     const sesiId = new URLSearchParams(window.location.search).get('sesi_id') || localStorage.getItem('active_session_id'); if (!sesiId) return;
-    const { data: sesi } = await supabaseClient.from('sesi').select('*, public_konselor:konselor_id(users:user_id(nama_lengkap, avatar_seed))').eq('id', sesiId).single(); if (!sesi) return;
+    const { data: sesi } = await supabaseClient.from('sesi').select('*, konselor(users(nama_lengkap, avatar_seed))').eq('id', sesiId).single(); if (!sesi) return;
 
     setText('[data-sesi="kode"]', sesi.kode_sesi); setText('[data-sesi="tanggal"]', formatTanggalIndo(sesi.tanggal));
-    setText('[data-sesi="konselor-nama"]', sesi.public_konselor?.users?.nama_lengkap || '-');
+    setText('[data-sesi="konselor-nama"]', sesi.konselor?.users?.nama_lengkap || '-');
     setText('[data-sesi="catatan-konselor"]', sesi.catatan_konselor || 'Konselor belum menambahkan catatan.');
 
     const avatarKonselor = qs('[data-sesi="konselor-avatar"]');
-    if (avatarKonselor) avatarKonselor.src = avatarUrl(sesi.public_konselor?.users?.avatar_seed);
+    if (avatarKonselor) avatarKonselor.src = avatarUrl(sesi.konselor?.users?.avatar_seed);
     const linkPenilaian = qs('[data-action="ke-penilaian"]'); if (linkPenilaian) linkPenilaian.href = `penilaian.html?sesi_id=${sesiId}`;
 }
 
@@ -559,7 +545,6 @@ function initPenilaianPage() {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        // TUGAS 4.2 — Role Guard Mahasiswa
         const profile = await auth.requireLogin(); if (!profile) return;
         if (profile.role !== 'mahasiswa') { window.location.href = 'index.html'; return; }
 
@@ -577,7 +562,7 @@ function initPenilaianPage() {
         const qW1 = num('qW1') || 5; const qW2 = num('qW2') || 5;
         const isRekomendasi = formData.get('rekomendasi') === 'ya';
 
-        // TUGAS 2.1 — Sinkronisasi Eksekusi Inserter Multi-Sistem Evaluasi
+        // 1. Eksekusi penyimpanan ke tabel Penilaian
         const payloadPenilaian = {
             sesi_id: sesiId,
             skor_total: Number(((qA1 + qA2 + qB1 + qW1 + qW2) / 5).toFixed(2)),
@@ -586,8 +571,9 @@ function initPenilaianPage() {
         };
 
         const { error: errPenilaian } = await supabaseClient.from('penilaian').insert([payloadPenilaian]);
-        if (errPenilaian) { alert('Gagal: ' + errPenilaian.message); btnSubmit.disabled = false; return; }
+        if (errPenilaian) { alert('Gagal mengirim penilaian: ' + errPenilaian.message); btnSubmit.disabled = false; return; }
 
+        // 2. Eksekusi sinkronisasi ke tabel Evaluasi UX
         const payloadKuesioner = {
             jurusan: profile.program_studi || 'Umum',
             q_mendengarkan: qA1, q_memahami: qA2, q_solusi: qB1, q_komunikasi: qW1, q_nyaman: qW2,
@@ -604,7 +590,6 @@ function initPenilaianPage() {
 // 12. HALAMAN RIWAYAT (riwayat.html)
 // ----------------------------------------------------------------------
 async function initRiwayatPage() {
-    // TUGAS 4.2 — Role Guard Mahasiswa
     const profile = await auth.requireLogin(); if (!profile) return;
     if (profile.role !== 'mahasiswa') { window.location.href = 'index.html'; return; }
 
@@ -612,7 +597,7 @@ async function initRiwayatPage() {
 
     const { data: daftarSesi } = await supabaseClient
         .from('sesi')
-        .select('*, public_konselor:konselor_id(jurusan, users:user_id(nama_lengkap, avatar_seed))')
+        .select('*, konselor(jurusan, users(nama_lengkap, avatar_seed))')
         .eq('mahasiswa_id', profile.id).order('tanggal', { ascending: false });
 
     if (daftarSesi && daftarSesi.length > 0) {
@@ -622,8 +607,8 @@ async function initRiwayatPage() {
             <div class="bg-white p-8 rounded-[35px] border border-gray-100 shadow-sm flex flex-col justify-between">
                 <div class="flex justify-between items-start mb-8">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-gray-50 rounded-xl overflow-hidden"><img src="${avatarUrl(s.public_konselor?.users?.avatar_seed)}" class="w-full h-full object-cover"></div>
-                        <div><h3 class="font-bold text-gray-900">${escapeHtml(s.public_konselor?.users?.nama_lengkap)}</h3><p class="text-[11px] text-gray-400">${escapeHtml(s.public_konselor?.jurusan)}</p></div>
+                        <div class="w-12 h-12 bg-gray-50 rounded-xl overflow-hidden"><img src="${avatarUrl(s.konselor?.users?.avatar_seed)}" class="w-full h-full object-cover"></div>
+                        <div><h3 class="font-bold text-gray-900">${escapeHtml(s.konselor?.users?.nama_lengkap)}</h3><p class="text-[11px] text-gray-400">${escapeHtml(s.konselor?.jurusan)}</p></div>
                     </div>
                     <span class="px-3 py-1.5 rounded-full text-[9px] font-bold uppercase ${isSelesai ? 'bg-[#E0F2FE] text-[#0369A1]' : 'bg-[#DBF69D] text-[#166534]'}">${escapeHtml(s.status)}</span>
                 </div>
@@ -632,7 +617,6 @@ async function initRiwayatPage() {
             </div>`;
         }).join('');
         
-        // TUGAS 3.2 — Perbaikan Skema Filter Rentang Bulan tanpa Pemotongan Timezone
         const targetBulan = String(new Date().getMonth() + 1).padStart(2, '0');
         const sesiBulanIni = daftarSesi.filter(s => s.tanggal.slice(5, 7) === targetBulan && s.status === 'Selesai');
         setText('[data-stat="total-sesi-bulan"]', String(sesiBulanIni.length).padStart(2, '0'));
@@ -678,32 +662,19 @@ function updateDashboard(data) {
 }
 
 // ----------------------------------------------------------------------
-// 14. INJESI FUNGSIONALITAS LAPISAN KONSELOR (FASE 2 & TUGAS 4.1 GUARD)
+// 14. LOGIKA ROUTER KONSELOR 
 // ----------------------------------------------------------------------
 async function verifyCounselorGuard() {
-    const profile = await auth.requireLogin();
-    if (!profile) return null;
+    const profile = await auth.requireLogin(); if (!profile) return null;
     if (profile.role !== 'konselor') { window.location.href = 'index.html'; return null; }
     return profile;
 }
-
-async function initCounselorQueuePage() {
-    const profile = await verifyCounselorGuard(); if (!profile) return;
-    console.log('[Sirkuit Antrean Konselor] Berhasil Terhubung.');
-}
-
-async function initCounselorChatPage() {
-    const profile = await verifyCounselorGuard(); if (!profile) return;
-    console.log('[Sirkuit Room-Chat Konselor] Berhasil Terhubung.');
-}
-
-async function initCounselorHistoryPage() {
-    const profile = await verifyCounselorGuard(); if (!profile) return;
-    console.log('[Sirkuit Arsip Sesi Konselor] Berhasil Terhubung.');
-}
+async function initCounselorQueuePage() { const profile = await verifyCounselorGuard(); if (!profile) return; console.log('[Sirkuit Antrean Konselor] Aktif'); }
+async function initCounselorChatPage() { const profile = await verifyCounselorGuard(); if (!profile) return; console.log('[Sirkuit Chat Konselor] Aktif'); }
+async function initCounselorHistoryPage() { const profile = await verifyCounselorGuard(); if (!profile) return; console.log('[Sirkuit Arsip Sesi Konselor] Aktif'); }
 
 // ----------------------------------------------------------------------
-// INITIALIZER ROUTER PUSAT BERBASIS LOKASI URL DETEKSI
+// ROUTER PUSAT: EKSEKUSI BERDASARKAN URL
 // ----------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
     await initNavbar();
@@ -719,8 +690,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     else if (path === 'penilaian.html') initPenilaianPage();
     else if (path === 'riwayat.html') await initRiwayatPage();
     else if (path === 'dashboard.html') await window.initDashboardPage();
-    
-    // TUGAS 2.2 — Struktur Penyambungan Otomatis Router Halaman Konselor
     else if (path === 'counselor-queue.html') await initCounselorQueuePage();
     else if (path === 'counselor-chat.html') await initCounselorChatPage();
     else if (path === 'counselor-history.html') await initCounselorHistoryPage();
