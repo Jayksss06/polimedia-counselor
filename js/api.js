@@ -164,7 +164,7 @@ function initLoginPage() {
         window.location.href = (profile && profile.role === 'konselor') ? 'counselor-dashboard.html' : 'index.html';
     };
 
-    window.handleRegister = async (e) => {
+window.handleRegister = async (e) => {
         e.preventDefault();
         const form = e.target;
         const submitBtn = form.querySelector('button[type="submit"]');
@@ -172,25 +172,32 @@ function initLoginPage() {
 
         const nama_lengkap = document.getElementById('regNama').value.trim();
         const nim = document.getElementById('regNIM').value.trim();
+        
+        // Ambil elemen select berdasarkan urutan di DOM login.html
         const selects = form.querySelectorAll('select');
         const program_studi = selects[0] ? selects[0].value : '';
         const semester = selects[1] ? parseInt(selects[1].value, 10) : null;
-        const email = form.querySelector('input[type="email"]').value.trim();
-        const password = document.getElementById('regPassword').value;
+        
         const teleponInput = form.querySelector('input[type="tel"]');
         const telepon = teleponInput ? teleponInput.value.trim() : '';
+        const email = form.querySelector('input[type="email"]').value.trim();
+        const password = document.getElementById('regPassword').value;
 
-        if (!nama_lengkap || !nim || !program_studi || !email || !password) {
+        if (!nama_lengkap || !nim || !program_studi || !semester || !email || !password) {
             alert('Mohon lengkapi semua data wajib.');
             return;
         }
 
         submitBtn.disabled = true;
-        submitBtn.innerHTML = 'Mendaftarkan...';
+        submitBtn.innerHTML = 'Membuat Akun...';
 
-        const { error } = await supabaseClient.auth.signUp({
-            email, password,
-            options: { data: { nama_lengkap, nim, program_studi, semester, telepon, role: 'mahasiswa' } },
+        // Eksekusi Pendaftaran ke Supabase
+        const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { nama_lengkap, nim, program_studi, semester, telepon, role: 'mahasiswa' },
+            },
         });
 
         if (error) {
@@ -200,10 +207,14 @@ function initLoginPage() {
             return;
         }
 
-        alert('Pendaftaran berhasil! Silakan login dengan akunmu.');
-        if (typeof window.toggleView === 'function') window.toggleView('login');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        // Karena 'Confirm email' dimatikan di Supabase, data.session akan langsung tersedia
+        if (data.session) {
+            window.location.href = 'index.html';
+        } else {
+            // Pengecualian (Fallback) jika server gagal mengembalikan sesi instan
+            alert('Pendaftaran berhasil! Mengalihkan ke halaman masuk...');
+            window.location.href = 'login.html';
+        }
     };
 }
 
