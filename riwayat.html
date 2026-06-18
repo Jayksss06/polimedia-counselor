@@ -3,38 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riwayat - Polimedia Peer Counselor</title>
+    <title>Riwayat Sesi - Polimedia Peer Counselor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/api.js"></script>
+    <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'brand-blue': '#046B8A', /* Menyesuaikan biru di desain */
+                        'brand-blue': '#00668F',
                         'brand-dark': '#004A6A',
                         'brand-light': '#F8FAFC',
-                        'card-gray': '#F4F4F5',
-                        'card-purple': '#D2D6FF', /* Ungu muda untuk card total sesi */
-                        'btn-green': '#4D7C0F', /* Hijau zaitun untuk tombol hubungi */
-                        'btn-blue-light': '#7DD3FC', /* Biru muda tombol ringkasan */
+                        'card-gray': '#F1F5F9',
+                        'btn-blue-light': '#E0F2FE'
                     },
                     fontFamily: {
                         'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
-                        'script': ['Georgia', 'serif'],
                     }
                 }
             }
         }
     </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    </style>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');</style>
 </head>
-<body class="bg-brand-light font-sans text-gray-800 min-h-screen">
+<body class="bg-brand-light font-sans text-gray-800 min-h-screen flex flex-col">
 
-    <nav class="flex justify-between items-center px-12 py-5 bg-white border-b border-gray-100">
+    <nav class="flex justify-between items-center px-6 md:px-12 py-5 bg-white border-b border-gray-100 sticky top-0 z-50">
         <div class="text-brand-blue font-semibold italic text-lg tracking-wide">Polimedia Peer Counselor</div>
         <div class="hidden md:flex gap-8 text-sm font-medium text-gray-500">
             <a href="index.html" class="hover:text-brand-blue transition">Beranda</a>
@@ -43,145 +37,56 @@
             <a href="tentang.html" class="hover:text-brand-blue transition">Tentang Kami</a>
             <a href="dashboard.html" class="hover:text-brand-blue transition">Feedback</a>
         </div>
-        <div class="flex gap-4 text-gray-400 items-center text-xl">
-            <button class="hover:text-brand-blue transition">🔔</button>
-            <button class="hover:text-brand-blue transition text-lg">⚙️</button>
-            <div class="w-8 h-8 bg-slate-300 rounded-full overflow-hidden border border-gray-200">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" class="w-full h-full object-cover">
-            </div>
+        <div class="flex gap-4 text-gray-400 items-center">
+            <button class="hover:text-brand-blue transition text-xl">🔔</button>
+            <a href="login.html" title="Login / Register" class="w-8 h-8 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition cursor-pointer text-gray-400 hover:text-brand-blue overflow-hidden">
+                <img data-nav="avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" alt="User Avatar" class="w-full h-full object-cover">
+            </a>
+            <button data-action="logout" class="text-xs font-bold text-red-500 hover:underline hidden" id="btnLogout">Keluar</button>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-6 py-10">
-        
-        <div class="mb-10">
-            <h1 class="text-[40px] text-brand-blue font-script italic font-medium mb-3">Agenda Konselingmu: Jangan lupa bercerita, ya.</h1>
-            <p class="text-gray-500 text-base max-w-2xl leading-relaxed">Temukan ketenangan dalam setiap percakapan. Kelola jadwal dan akses sesi konselingmu dengan mudah di sini.</p>
+    <main class="flex-grow max-w-[1200px] w-full mx-auto px-6 md:px-12 py-10">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Perjalanan Ketenanganmu</h1>
+        <p class="text-sm text-gray-500 mb-10">Pantau riwayat sesi yang telah kamu lalui dan yang akan datang.</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div class="lg:col-span-2 space-y-6">
+                <h2 class="font-bold text-lg text-gray-900 mb-4">Daftar Sesi</h2>
+                
+                <div class="space-y-6" data-section="sesi-list">
+                    <div class="text-center py-10 text-gray-400 text-sm bg-white rounded-[35px] border border-gray-100 shadow-sm">
+                        Memuat riwayat sesi dari pangkalan data...
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[35px] p-8 border border-gray-100 shadow-sm sticky top-28">
+                <h2 class="font-bold text-lg text-gray-900 mb-6">Aktivitas Bulan Ini</h2>
+                <div class="space-y-6">
+                    <div class="bg-card-gray rounded-3xl p-6">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total Sesi Selesai</p>
+                        <div class="flex items-end gap-2">
+                            <h3 class="text-4xl font-black text-gray-900 leading-none" data-stat="total-sesi-bulan">00</h3>
+                            <span class="text-sm font-bold text-gray-500 mb-1">Sesi</span>
+                        </div>
+                    </div>
+                    <div class="bg-[#E0F2FE] rounded-3xl p-6">
+                        <p class="text-[10px] text-[#0369A1] font-bold uppercase tracking-widest mb-1">Waktu Investasi Diri</p>
+                        <div class="flex items-end gap-2 text-brand-blue">
+                            <h3 class="text-4xl font-black leading-none" data-stat="total-menit-bulan">0</h3>
+                            <span class="text-sm font-bold mb-1">Menit</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            
-            <div class="bg-white p-8 rounded-[35px] border border-gray-100 shadow-sm flex flex-col justify-between">
-                
-                <div class="flex justify-between items-start mb-8">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-gray-50 rounded-xl flex flex-col items-center justify-center text-xs border border-gray-100 shadow-sm">📄</div>
-                        <div>
-                            <h3 class="font-bold text-gray-900 text-lg leading-tight">Siti<br>Nurhalizah</h3>
-                            <p class="text-[11px] text-gray-400 font-medium mt-0.5">Psikolog Klinis</p>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-[#DBF69D] rounded-full px-2 py-2.5 flex items-center gap-2 mt-1">
-                        <div class="w-1.5 h-1.5 bg-[#166534] rounded-full"></div>
-                        <div class="flex flex-col text-[9px] font-extrabold text-[#166534] leading-[1.1] tracking-wider text-left">
-                            <span>SEDANG</span>
-                            <span>BERLANGSUNG</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-8">
-                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-1">Tanggal & Jam Sesi</p>
-                    <h2 class="text-3xl font-bold text-brand-blue leading-tight">Hari ini,<br>14:00 WIB</h2>
-                </div>
-
-                <a href="live-chat.html" class="w-full bg-[#4D7C0F] hover:bg-green-800 text-white font-semibold py-3.5 rounded-2xl transition flex justify-center items-center gap-2">
-                    💬 Hubungi Konselor
-                </a>
-            </div>
-
-            <div class="bg-card-gray p-8 rounded-[35px] flex flex-col justify-between">
-                <div class="flex justify-between items-start mb-8">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-gray-200 rounded-full flex flex-col items-center justify-center text-gray-500">👤</div>
-                        <div>
-                            <h3 class="font-bold text-gray-900 text-lg leading-tight">Bpk. Ahmad<br>Firdaus</h3>
-                            <p class="text-[11px] text-gray-500">Konselor Karir</p>
-                        </div>
-                    </div>
-                    <span class="bg-gray-200 text-gray-600 text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
-                        Mendatang
-                    </span>
-                </div>
-
-                <div class="mb-8">
-                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-1">Tanggal & Jam Sesi</p>
-                    <h2 class="text-3xl font-bold text-gray-400 leading-tight">22 Mei,<br>10:00 WIB</h2>
-                </div>
-
-                <button disabled class="w-full bg-gray-200 text-gray-400 font-semibold py-3.5 rounded-2xl cursor-not-allowed flex justify-center items-center gap-2">
-                    🕒 Belum Dimulai
-                </button>
-            </div>
-
-            <div class="bg-white p-8 rounded-[35px] border border-gray-100 shadow-sm flex flex-col justify-between">
-                <div class="flex justify-between items-start mb-8">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-gray-50 rounded-lg flex flex-col items-center justify-center text-xs border border-gray-100">📄</div>
-                        <div>
-                            <h3 class="font-bold text-gray-900 text-lg leading-tight">Ibu Maria Utami</h3>
-                            <p class="text-[11px] text-gray-500">Spesialis Hubungan</p>
-                        </div>
-                    </div>
-                    <span class="bg-[#E0F2FE] text-[#0369A1] text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
-                        Selesai
-                    </span>
-                </div>
-
-                <div class="mb-8">
-                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-1">Tanggal & Jam Sesi</p>
-                    <h2 class="text-3xl font-bold text-gray-300 leading-tight">15 Mei,<br>16:30 WIB</h2>
-                </div>
-
-                <a href="ringkasan-sesi.html" class="w-full bg-btn-blue-light hover:bg-[#38BDF8] text-[#0369A1] hover:text-white font-semibold py-3.5 rounded-2xl transition flex justify-center items-center gap-2">
-                    📄 Lihat Ringkasan
-                </a>
-            </div>
-
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <div class="md:col-span-2 bg-brand-blue rounded-[35px] p-10 flex flex-col justify-center relative overflow-hidden text-white min-h-[300px]">
-                <div class="absolute right-10 top-1/2 -translate-y-1/2 w-48 h-48 border-[15px] border-white/10 rounded-full flex items-center justify-center">
-                    <div class="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center">
-                        <span class="text-6xl text-white/40">💙</span>
-                    </div>
-                </div>
-
-                <div class="relative z-10">
-                    <span class="inline-block bg-white/20 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest mb-6">
-                        Tips Kesehatan Mental
-                    </span>
-                    
-                    <h2 class="text-3xl font-bold mb-4 leading-tight max-w-sm">Ceritakan apa yang kamu rasakan tanpa ragu.</h2>
-                    
-                    <p class="text-blue-100 text-sm max-w-sm leading-relaxed mb-8">
-                        Konseling bukan hanya tentang mencari solusi, tapi tentang menemukan dirimu kembali. Setiap sesi adalah langkah berani menuju pertumbuhan.
-                    </p>
-                    
-                    <button class="bg-white hover:bg-gray-50 text-brand-blue font-bold px-8 py-3.5 rounded-full transition shadow-sm w-max">
-                        Eksplorasi Jurnal
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-card-purple rounded-[35px] p-10 flex flex-col items-center justify-center text-center text-[#373A6D]">
-                <div class="text-4xl text-[#4A4D8C] mb-4">📅</div>
-                
-                <h3 class="font-bold text-sm mb-2">Total Sesi Bulan Ini</h3>
-                
-                <h1 class="text-7xl font-black mb-4">08</h1>
-                
-                <p class="text-xs text-[#5C5F9C] leading-relaxed max-w-[200px]">
-                    Kamu sudah meluangkan 480 menit untuk dirimu sendiri.
-                </p>
-            </div>
-
-        </div>
-
     </main>
 
+    <footer class="mt-8 text-center pb-8 border-t border-gray-100 pt-8">
+        <p class="text-[10px] text-gray-400 font-medium">© 2026 Polimedia Peer Counselor.</p>
+    </footer>
+
+    <script src="js/api.js"></script>
 </body>
 </html>

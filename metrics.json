@@ -1,0 +1,131 @@
+{
+  "meta": {
+    "total_responden": 1284,
+    "rata_rata_global": 4.62,
+    "skor_dominan": 5.0,
+    "std_deviasi": 0.32,
+    "last_updated": "2026-06-18T08:00:00Z"
+  },
+  "filter_options": {
+    "jurusan": ["Semua Jurusan", "Teknik Informatika", "Sistem Informasi", "Desain Komunikasi Visual", "Teknik Elektro", "Akuntansi"],
+    "dimensi_ux": ["Semua Dimensi", "Kejelasan Web", "Kemudahan Web", "Daya Tarik"],
+    "tanggal": { "min": "2026-01-01", "max": "2026-06-18" }
+  },
+  "kualitas_konselor": {
+    "distribusi_frekuensi": {
+      "labels": ["Empati", "Komunikasi", "Profesionalisme"],
+      "datasets": {
+        "Skala 1": [10, 15, 5],
+        "Skala 2": [20, 25, 10],
+        "Skala 3": [80, 120, 60],
+        "Skala 4": [320, 280, 210],
+        "Skala 5": [854, 844, 999]
+      }
+    },
+    "distribusi_frekuensi_by_jurusan": {
+      "Teknik Informatika":       { "Skala 1": [3,4,1], "Skala 2": [5,7,3], "Skala 3": [20,30,15], "Skala 4": [82,70,55], "Skala 5": [202,201,238] },
+      "Sistem Informasi":         { "Skala 1": [2,3,1], "Skala 2": [4,5,2], "Skala 3": [18,27,13], "Skala 4": [75,65,50], "Skala 5": [188,187,221] },
+      "Desain Komunikasi Visual": { "Skala 1": [2,3,1], "Skala 2": [4,5,2], "Skala 3": [15,22,11], "Skala 4": [63,55,42], "Skala 5": [159,158,187] },
+      "Teknik Elektro":           { "Skala 1": [1,2,1], "Skala 2": [3,4,2], "Skala 3": [13,19,9],  "Skala 4": [51,44,34], "Skala 5": [130,129,152] },
+      "Akuntansi":                { "Skala 1": [2,3,1], "Skala 2": [4,4,1], "Skala 3": [14,22,12], "Skala 4": [49,46,29], "Skala 5": [175,169,201] }
+    },
+    "rekomendasi_by_jurusan": {
+      "Teknik Informatika":       { "ya": 91, "tidak": 9 },
+      "Sistem Informasi":         { "ya": 89, "tidak": 11 },
+      "Desain Komunikasi Visual": { "ya": 85, "tidak": 15 },
+      "Teknik Elektro":           { "ya": 83, "tidak": 17 },
+      "Akuntansi":                { "ya": 87, "tidak": 13 }
+    },
+    "detail_pertanyaan": [
+      { "pertanyaan": "Konselor mendengarkan dengan penuh perhatian", "dimensi": "Dimensi A", "mean": 4.85, "median": 5, "sd": 0.12, "probabilitas": 97.2 },
+      { "pertanyaan": "Konselor memahami perasaan saya dengan baik",  "dimensi": "Dimensi A", "mean": 4.75, "median": 5, "sd": 0.15, "probabilitas": 95.1 },
+      { "pertanyaan": "Penjelasan konselor mudah dipahami",            "dimensi": "Dimensi B", "mean": 4.50, "median": 5, "sd": 0.25, "probabilitas": 92.4 },
+      { "pertanyaan": "Solusi yang diberikan relevan dengan masalah",  "dimensi": "Dimensi B", "mean": 4.35, "median": 4, "sd": 0.33, "probabilitas": 88.5 },
+      { "pertanyaan": "Komunikasi berjalan dua arah dengan lancar",    "dimensi": "Dimensi B", "mean": 4.45, "median": 4, "sd": 0.28, "probabilitas": 91.0 },
+      { "pertanyaan": "Konselor bersikap profesional sepanjang sesi",  "dimensi": "Dimensi C", "mean": 4.92, "median": 5, "sd": 0.08, "probabilitas": 98.5 },
+      { "pertanyaan": "Suasana sesi membuat saya merasa nyaman",       "dimensi": "Dimensi C", "mean": 4.88, "median": 5, "sd": 0.10, "probabilitas": 97.0 },
+      { "pertanyaan": "Kerahasiaan informasi dijaga dengan baik",      "dimensi": "Dimensi C", "mean": 4.95, "median": 5, "sd": 0.05, "probabilitas": 99.1 }
+    ],
+    "detail_pertanyaan_by_jurusan": {
+      "Teknik Informatika":       [
+        { "pertanyaan": "Konselor mendengarkan dengan penuh perhatian", "dimensi": "Dimensi A", "mean": 4.90, "median": 5, "sd": 0.10, "probabilitas": 98.1 },
+        { "pertanyaan": "Konselor memahami perasaan saya dengan baik",  "dimensi": "Dimensi A", "mean": 4.80, "median": 5, "sd": 0.13, "probabilitas": 96.2 },
+        { "pertanyaan": "Penjelasan konselor mudah dipahami",            "dimensi": "Dimensi B", "mean": 4.60, "median": 5, "sd": 0.22, "probabilitas": 93.5 },
+        { "pertanyaan": "Solusi yang diberikan relevan dengan masalah",  "dimensi": "Dimensi B", "mean": 4.45, "median": 5, "sd": 0.30, "probabilitas": 90.1 },
+        { "pertanyaan": "Komunikasi berjalan dua arah dengan lancar",    "dimensi": "Dimensi B", "mean": 4.55, "median": 5, "sd": 0.25, "probabilitas": 92.0 },
+        { "pertanyaan": "Konselor bersikap profesional sepanjang sesi",  "dimensi": "Dimensi C", "mean": 4.95, "median": 5, "sd": 0.06, "probabilitas": 99.0 },
+        { "pertanyaan": "Suasana sesi membuat saya merasa nyaman",       "dimensi": "Dimensi C", "mean": 4.91, "median": 5, "sd": 0.09, "probabilitas": 97.8 },
+        { "pertanyaan": "Kerahasiaan informasi dijaga dengan baik",      "dimensi": "Dimensi C", "mean": 4.97, "median": 5, "sd": 0.04, "probabilitas": 99.5 }
+      ],
+      "Sistem Informasi": [
+        { "pertanyaan": "Konselor mendengarkan dengan penuh perhatian", "dimensi": "Dimensi A", "mean": 4.83, "median": 5, "sd": 0.13, "probabilitas": 96.8 },
+        { "pertanyaan": "Konselor memahami perasaan saya dengan baik",  "dimensi": "Dimensi A", "mean": 4.72, "median": 5, "sd": 0.16, "probabilitas": 94.5 },
+        { "pertanyaan": "Penjelasan konselor mudah dipahami",            "dimensi": "Dimensi B", "mean": 4.48, "median": 5, "sd": 0.26, "probabilitas": 91.8 },
+        { "pertanyaan": "Solusi yang diberikan relevan dengan masalah",  "dimensi": "Dimensi B", "mean": 4.32, "median": 4, "sd": 0.34, "probabilitas": 87.9 },
+        { "pertanyaan": "Komunikasi berjalan dua arah dengan lancar",    "dimensi": "Dimensi B", "mean": 4.43, "median": 4, "sd": 0.29, "probabilitas": 90.5 },
+        { "pertanyaan": "Konselor bersikap profesional sepanjang sesi",  "dimensi": "Dimensi C", "mean": 4.90, "median": 5, "sd": 0.09, "probabilitas": 98.0 },
+        { "pertanyaan": "Suasana sesi membuat saya merasa nyaman",       "dimensi": "Dimensi C", "mean": 4.86, "median": 5, "sd": 0.11, "probabilitas": 96.5 },
+        { "pertanyaan": "Kerahasiaan informasi dijaga dengan baik",      "dimensi": "Dimensi C", "mean": 4.93, "median": 5, "sd": 0.06, "probabilitas": 98.8 }
+      ],
+      "Desain Komunikasi Visual": [
+        { "pertanyaan": "Konselor mendengarkan dengan penuh perhatian", "dimensi": "Dimensi A", "mean": 4.80, "median": 5, "sd": 0.14, "probabilitas": 96.0 },
+        { "pertanyaan": "Konselor memahami perasaan saya dengan baik",  "dimensi": "Dimensi A", "mean": 4.68, "median": 5, "sd": 0.18, "probabilitas": 93.2 },
+        { "pertanyaan": "Penjelasan konselor mudah dipahami",            "dimensi": "Dimensi B", "mean": 4.42, "median": 4, "sd": 0.28, "probabilitas": 90.0 },
+        { "pertanyaan": "Solusi yang diberikan relevan dengan masalah",  "dimensi": "Dimensi B", "mean": 4.28, "median": 4, "sd": 0.36, "probabilitas": 86.0 },
+        { "pertanyaan": "Komunikasi berjalan dua arah dengan lancar",    "dimensi": "Dimensi B", "mean": 4.38, "median": 4, "sd": 0.31, "probabilitas": 89.0 },
+        { "pertanyaan": "Konselor bersikap profesional sepanjang sesi",  "dimensi": "Dimensi C", "mean": 4.88, "median": 5, "sd": 0.10, "probabilitas": 97.2 },
+        { "pertanyaan": "Suasana sesi membuat saya merasa nyaman",       "dimensi": "Dimensi C", "mean": 4.82, "median": 5, "sd": 0.13, "probabilitas": 95.8 },
+        { "pertanyaan": "Kerahasiaan informasi dijaga dengan baik",      "dimensi": "Dimensi C", "mean": 4.91, "median": 5, "sd": 0.07, "probabilitas": 98.2 }
+      ],
+      "Teknik Elektro": [
+        { "pertanyaan": "Konselor mendengarkan dengan penuh perhatian", "dimensi": "Dimensi A", "mean": 4.78, "median": 5, "sd": 0.15, "probabilitas": 95.3 },
+        { "pertanyaan": "Konselor memahami perasaan saya dengan baik",  "dimensi": "Dimensi A", "mean": 4.65, "median": 5, "sd": 0.20, "probabilitas": 92.1 },
+        { "pertanyaan": "Penjelasan konselor mudah dipahami",            "dimensi": "Dimensi B", "mean": 4.38, "median": 4, "sd": 0.30, "probabilitas": 88.5 },
+        { "pertanyaan": "Solusi yang diberikan relevan dengan masalah",  "dimensi": "Dimensi B", "mean": 4.22, "median": 4, "sd": 0.38, "probabilitas": 84.0 },
+        { "pertanyaan": "Komunikasi berjalan dua arah dengan lancar",    "dimensi": "Dimensi B", "mean": 4.33, "median": 4, "sd": 0.33, "probabilitas": 87.5 },
+        { "pertanyaan": "Konselor bersikap profesional sepanjang sesi",  "dimensi": "Dimensi C", "mean": 4.85, "median": 5, "sd": 0.11, "probabilitas": 96.5 },
+        { "pertanyaan": "Suasana sesi membuat saya merasa nyaman",       "dimensi": "Dimensi C", "mean": 4.79, "median": 5, "sd": 0.14, "probabilitas": 94.8 },
+        { "pertanyaan": "Kerahasiaan informasi dijaga dengan baik",      "dimensi": "Dimensi C", "mean": 4.88, "median": 5, "sd": 0.08, "probabilitas": 97.5 }
+      ],
+      "Akuntansi": [
+        { "pertanyaan": "Konselor mendengarkan dengan penuh perhatian", "dimensi": "Dimensi A", "mean": 4.82, "median": 5, "sd": 0.13, "probabilitas": 96.4 },
+        { "pertanyaan": "Konselor memahami perasaan saya dengan baik",  "dimensi": "Dimensi A", "mean": 4.70, "median": 5, "sd": 0.17, "probabilitas": 93.8 },
+        { "pertanyaan": "Penjelasan konselor mudah dipahami",            "dimensi": "Dimensi B", "mean": 4.44, "median": 4, "sd": 0.27, "probabilitas": 91.0 },
+        { "pertanyaan": "Solusi yang diberikan relevan dengan masalah",  "dimensi": "Dimensi B", "mean": 4.30, "median": 4, "sd": 0.35, "probabilitas": 87.0 },
+        { "pertanyaan": "Komunikasi berjalan dua arah dengan lancar",    "dimensi": "Dimensi B", "mean": 4.40, "median": 4, "sd": 0.30, "probabilitas": 89.8 },
+        { "pertanyaan": "Konselor bersikap profesional sepanjang sesi",  "dimensi": "Dimensi C", "mean": 4.89, "median": 5, "sd": 0.09, "probabilitas": 97.6 },
+        { "pertanyaan": "Suasana sesi membuat saya merasa nyaman",       "dimensi": "Dimensi C", "mean": 4.84, "median": 5, "sd": 0.12, "probabilitas": 96.0 },
+        { "pertanyaan": "Kerahasiaan informasi dijaga dengan baik",      "dimensi": "Dimensi C", "mean": 4.93, "median": 5, "sd": 0.06, "probabilitas": 98.9 }
+      ]
+    }
+  },
+  "kualitas_web": {
+    "tren_mingguan": {
+      "labels": ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10"],
+      "data": [60, 40, 75, 65, 90, 85, 95, 80, 70, 88]
+    },
+    "tren_bulanan": {
+      "labels": ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"],
+      "data": [80, 82, 85, 78, 92, 88, 95, 91, 94, 85, 89, 96]
+    },
+    "rekomendasi": { "ya": 88, "tidak": 12 },
+    "distribusi_ux": {
+      "Kejelasan Web": { "5": 83, "4": 12, "3": 3, "2": 1, "1": 1 },
+      "Kemudahan Web": { "5": 72, "4": 22, "3": 5, "2": 1, "1": 0 },
+      "Daya Tarik":    { "5": 91, "4": 6,  "3": 2, "2": 1, "1": 0 }
+    },
+    "detail_pertanyaan": [
+      { "pertanyaan": "Seberapa mudah navigasi aplikasi Polimedia Peer Counselor?", "dimensi_ux": "Kemudahan Web", "mean": 4.82, "median": 5.0, "sd": 0.21, "probabilitas": 94 },
+      { "pertanyaan": "Apakah visual interface membantu ketenangan Anda?",          "dimensi_ux": "Daya Tarik",    "mean": 4.91, "median": 5.0, "sd": 0.15, "probabilitas": 98 },
+      { "pertanyaan": "Kejelasan informasi dan status konselor.",                    "dimensi_ux": "Kejelasan Web", "mean": 4.45, "median": 4.5, "sd": 0.42, "probabilitas": 81 },
+      { "pertanyaan": "Respon sistem saat memulai sesi chat.",                       "dimensi_ux": "Kemudahan Web", "mean": 4.30, "median": 4.0, "sd": 0.51, "probabilitas": 78 }
+    ]
+  },
+  "by_jurusan": {
+    "Teknik Informatika":       { "total": 312, "mean": 4.71, "sd": 0.28 },
+    "Sistem Informasi":         { "total": 287, "mean": 4.65, "sd": 0.31 },
+    "Desain Komunikasi Visual": { "total": 243, "mean": 4.58, "sd": 0.35 },
+    "Teknik Elektro":           { "total": 198, "mean": 4.55, "sd": 0.40 },
+    "Akuntansi":                { "total": 244, "mean": 4.61, "sd": 0.29 }
+  }
+}

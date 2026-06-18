@@ -1,3 +1,7 @@
+const SUPABASE_URL = 'https://nqvohyidkegkwffnkcjg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xdm9oeWlka2Vna3dmZm5rY2pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MDY4MTAsImV4cCI6MjA5NzE4MjgxMH0.v9L58CSuqyUUd9tdOVp5Zhul0a4zYvsQnI2pGCiwI04';
+
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -276,11 +280,6 @@
                 const btnLogout = document.getElementById('btnLogout');
                 if (btnLogout) {
                     btnLogout.classList.remove('hidden');
-                    btnLogout.addEventListener('click', async () => {
-                        // UBAH supabase.auth menjadi supabaseClient.auth
-                        await supabaseClient.auth.signOut();
-                        window.location.reload();
-                    });
                 }
             }
         });

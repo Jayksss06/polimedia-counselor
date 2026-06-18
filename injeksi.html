@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Injektor Data Pameran</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-50 p-8 font-sans">
+    <div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md border border-gray-200">
+        <h2 class="text-xl font-bold mb-4 text-blue-900">Panel Injeksi Data Realtime</h2>
+        <form id="injectorForm" class="space-y-4">
+            
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">Jurusan Responden</label>
+                <select id="jurusan" class="w-full border p-2 rounded text-sm">
+                    <option value="Teknik Informatika">Teknik Informatika</option>
+                    <option value="Sistem Informasi">Sistem Informasi</option>
+                    <option value="Desain Komunikasi Visual">Desain Komunikasi Visual</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Skor Kualitas Konselor (1-5)</label>
+                    <input type="number" id="skor_konselor" min="1" max="5" value="5" class="w-full border p-2 rounded text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Skor UX Web (1-5)</label>
+                    <input type="number" id="skor_web" min="1" max="5" value="4" class="w-full border p-2 rounded text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">Apakah merekomendasikan?</label>
+                <select id="rekomendasi" class="w-full border p-2 rounded text-sm">
+                    <option value="true">Ya, Rekomendasikan</option>
+                    <option value="false">Tidak</option>
+                </select>
+            </div>
+
+            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">
+                🚀 Tembakkan Data ke Dasbor
+            </button>
+            <p id="status" class="text-xs text-center font-bold mt-2 text-gray-500"></p>
+        </form>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://nqvohyidkegkwffnkcjg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xdm9oeWlka2Vna3dmZm5rY2pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MDY4MTAsImV4cCI6MjA5NzE4MjgxMH0.v9L58CSuqyUUd9tdOVp5Zhul0a4zYvsQnI2pGCiwI04';
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        document.getElementById('injectorForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = 'Memproses transmisi...';
+            statusEl.className = 'text-xs text-center font-bold mt-2 text-blue-500';
+
+            const skorKonselor = parseInt(document.getElementById('skor_konselor').value);
+            const skorWeb = parseInt(document.getElementById('skor_web').value);
+
+            const payload = {
+                jurusan: document.getElementById('jurusan').value,
+                q_mendengarkan: skorKonselor, q_memahami: skorKonselor, q_penjelasan: skorKonselor,
+                q_solusi: skorKonselor, q_komunikasi: skorKonselor, q_profesional: skorKonselor,
+                q_nyaman: skorKonselor, q_rahasia: skorKonselor,
+                q_navigasi: skorWeb, q_visual: skorWeb, q_informasi: skorWeb, q_respon: skorWeb,
+                rekomendasi: document.getElementById('rekomendasi').value === 'true'
+            };
+
+            const { error } = await supabase.from('kuesioner_evaluasi').insert([payload]);
+
+            if (error) {
+                statusEl.textContent = '❌ Galat: ' + error.message;
+                statusEl.className = 'text-xs text-center font-bold mt-2 text-red-500';
+            } else {
+                statusEl.textContent = '✅ Data berhasil disuntikkan!';
+                statusEl.className = 'text-xs text-center font-bold mt-2 text-green-500';
+                setTimeout(() => statusEl.textContent = '', 3000);
+            }
+        });
+    </script>
+</body>
+</html>
