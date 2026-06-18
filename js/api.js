@@ -4,22 +4,19 @@
  * ============================================================================
  */
 
-// ----------------------------------------------------------------------
-// 1. KONFIGURASI & INISIALISASI KLIEN SUPABASE
-// ----------------------------------------------------------------------
 const SUPABASE_URL = 'https://nqvohyidkegkwffnkcjg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xdm9oeWlka2Vna3dmZm5rY2pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MDY4MTAsImV4cCI6MjA5NzE4MjgxMH0.v9L58CSuqyUUd9tdOVp5Zhul0a4zYvsQnI2pGCiwI04';
 
 if (typeof window.supabase === 'undefined') {
-    console.error('[api.js] SDK Supabase belum dimuat. Pastikan dipanggil di HTML sebelum api.js.');
+    console.error('[api.js] SDK Supabase belum dimuat.');
 }
 
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 window.supabaseClient = supabaseClient;
 
-// ----------------------------------------------------------------------
+// ============================================================
 // HELPER GLOBAL
-// ----------------------------------------------------------------------
+// ============================================================
 const fmtRating = (val) => (val === null || val === undefined ? '0.0' : Number(val).toFixed(1));
 const avatarUrl = (seed) => `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed || 'Guest')}`;
 const escapeHtml = (str) => String(str ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -50,9 +47,9 @@ function waktuRelatif(tanggalStr) {
     return `${diffHari} hari lalu`;
 }
 
-// ----------------------------------------------------------------------
-// 2. MODUL AUTENTIKASI
-// ----------------------------------------------------------------------
+// ============================================================
+// MODUL AUTENTIKASI
+// ============================================================
 const auth = {
     async getSession() {
         const { data, error } = await supabaseClient.auth.getSession();
@@ -80,9 +77,6 @@ const auth = {
 };
 window.PolimediaAuth = auth;
 
-// ----------------------------------------------------------------------
-// 3. NAVBAR
-// ----------------------------------------------------------------------
 async function initNavbar() {
     if (!supabaseClient) return;
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -101,70 +95,9 @@ async function initNavbar() {
     }
 }
 
-// ----------------------------------------------------------------------
-// 4. HALAMAN LOGIN & REGISTRASI (login.html)
-// ----------------------------------------------------------------------
-function initLoginPage() {
-    window.handleLogin = async (e) => {
-        e.preventDefault();
-        const email = qs('#loginForm input[type="email"]').value.trim();
-        const password = document.getElementById('loginPassword').value;
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-
-        submitBtn.disabled = true; submitBtn.innerHTML = 'Memproses...';
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-        if (error) {
-            alert('Login gagal: ' + (error.message === 'Invalid login credentials' ? 'Email/Sandi salah.' : error.message));
-            submitBtn.disabled = false; submitBtn.innerHTML = originalText; return;
-        }
-        const { data: profile } = await supabaseClient.from('users').select('role').eq('id', data.user.id).single();
-        window.location.href = (profile && profile.role === 'konselor') ? 'counselor-dashboard.html' : 'index.html';
-    };
-
-    window.handleRegister = async (e) => {
-        e.preventDefault();
-        const form = e.target;
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-
-        const nama_lengkap = document.getElementById('regNama').value.trim();
-        const nim = document.getElementById('regNIM').value.trim();
-        const selects = form.querySelectorAll('select');
-        const program_studi = selects[0] ? selects[0].value : '';
-        const semester = selects[1] ? parseInt(selects[1].value, 10) : null;
-        const teleponInput = form.querySelector('input[type="tel"]');
-        const telepon = teleponInput ? teleponInput.value.trim() : '';
-        const email = form.querySelector('input[type="email"]').value.trim();
-        const password = document.getElementById('regPassword').value;
-
-        if (!nama_lengkap || !nim || !program_studi || !semester || !email || !password) {
-            alert('Mohon lengkapi semua data wajib.'); return;
-        }
-
-        submitBtn.disabled = true; submitBtn.innerHTML = 'Membuat Akun...';
-        const { data, error } = await supabaseClient.auth.signUp({
-            email, password, options: { data: { nama_lengkap, nim, program_studi, semester, telepon, role: 'mahasiswa' } },
-        });
-
-        if (error) {
-            alert('Registrasi gagal: ' + error.message);
-            submitBtn.disabled = false; submitBtn.innerHTML = originalText; return;
-        }
-
-        if (data.session) {
-            window.location.href = 'index.html';
-        } else {
-            alert('Pendaftaran berhasil! Mengalihkan ke halaman masuk...');
-            window.location.href = 'login.html';
-        }
-    };
-}
-
-// ----------------------------------------------------------------------
-// 5. HALAMAN BERANDA (index.html) -> REALTIME
-// ----------------------------------------------------------------------
+// ============================================================
+// 5. HALAMAN BERANDA (index.html) -> SINKRONISASI TABEL AKTUAL
+// ============================================================
 window.toggleAccordion = function(id) {
     const target = document.getElementById(id);
     if (!target) return;
@@ -174,26 +107,36 @@ window.toggleAccordion = function(id) {
 };
 
 async function initIndexPage() {
+    // A. Mengalkulasi Metrik Utama dari tabel kuesioner_evaluasi
     async function loadStats() {
-        const { data: homeStats } = await supabaseClient.from('v_home_stats').select('*').single();
-        if (homeStats) {
-            setText('#homeTotalResponden', homeStats.total_responden ?? 0);
-            setText('#homeRataSkor', fmtRating(homeStats.rata_skor));
-            setText('#homePersenRekomendasi', `${homeStats.persen_rekomendasi ?? 0}%`);
+        const { data } = await supabaseClient.from('kuesioner_evaluasi').select('*');
+        if (data) {
+            const total = data.length;
+            let skorGlobal = 0, rek = 0;
+            data.forEach(row => {
+                skorGlobal += (row.q_mendengarkan + row.q_memahami + row.q_penjelasan + row.q_solusi + row.q_komunikasi + row.q_profesional + row.q_nyaman + row.q_rahasia) / 8;
+                if (row.rekomendasi) rek++;
+            });
+            setText('#homeTotalResponden', total.toLocaleString('id-ID'));
+            setText('#homeRataSkor', total > 0 ? (skorGlobal / total).toFixed(2) : "0.00");
+            setText('#homePersenRekomendasi', total > 0 ? Math.round((rek / total) * 100) + '%' : "0%");
         }
     }
 
+    // B. Mengambil Ulasan Terkini dari tabel penilaian melalui relasi relasional sesi
     async function loadUlasan() {
         const container = document.getElementById('ulasanContainer');
         if (!container) return;
         const { data: ulasan } = await supabaseClient
-            .from('penilaian_sesi')
-            .select('komentar, skor_rata_konselor, created_at, users!penilaian_sesi_mahasiswa_fkey(program_studi)')
-            .not('komentar', 'is', null).order('created_at', { ascending: false }).limit(3);
+            .from('penilaian')
+            .select('komentar, skor_total, created_at, sesi(users:mahasiswa_id(program_studi))')
+            .not('komentar', 'is', null)
+            .order('created_at', { ascending: false }).limit(3);
 
         if (ulasan && ulasan.length > 0) {
             container.innerHTML = ulasan.map((u) => {
-                const rating = Math.round(u.skor_rata_konselor || 5);
+                const rating = Math.round(u.skor_total || 5);
+                const prodi = u.sesi?.users?.program_studi || 'Polimedia';
                 return `
                 <div class="bg-white p-6 rounded-3xl border border-gray-100 card-shadow flex flex-col justify-between">
                     <div>
@@ -204,16 +147,17 @@ async function initIndexPage() {
                         <p class="text-sm text-gray-600 leading-relaxed mb-6">"${escapeHtml(u.komentar)}"</p>
                     </div>
                     <div class="flex items-center gap-3 pt-4 border-t border-gray-50">
-                        <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden"><img src="${avatarUrl(u.users?.program_studi)}" class="w-full h-full object-cover"></div>
-                        <h4 class="text-[11px] font-bold text-gray-800">Mahasiswa ${escapeHtml(u.users?.program_studi || 'Polimedia')}</h4>
+                        <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden"><img src="${avatarUrl(prodi)}" class="w-full h-full object-cover"></div>
+                        <h4 class="text-[11px] font-bold text-gray-800">Mahasiswa ${escapeHtml(prodi)}</h4>
                     </div>
                 </div>`;
             }).join('');
         } else {
-            container.innerHTML = '<div class="col-span-3 text-center py-10 text-gray-400 text-sm">Belum ada ulasan tersedia. Selesaikan sesi pertama Anda.</div>';
+            container.innerHTML = '<div class="col-span-3 text-center py-10 text-gray-400 text-sm">Belum ada ulasan tersedia dari tabel penilaian.</div>';
         }
     }
 
+    // C. Mengambil Distribusi Topik dari tabel sesi
     async function loadTopik() {
         const container = document.getElementById('topikContainer');
         if (!container) return;
@@ -238,14 +182,18 @@ async function initIndexPage() {
                 </div>`;
             }).join('');
         } else {
-            container.innerHTML = '<div class="text-center py-4 text-gray-400 text-sm">Belum ada data distribusi topik.</div>';
+            container.innerHTML = '<div class="text-center py-4 text-gray-400 text-sm">Belum ada data distribusi topik di tabel sesi.</div>';
         }
     }
 
+    // D. Mengambil Konselor Terbaik Langsung dari Tabel Utama (Mencegah View Error)
     async function loadKonselor() {
         const container = document.getElementById('konselorContainer');
         if (!container) return;
-        const { data: konselor } = await supabaseClient.from('v_konselor_terbaik').select('*').limit(3);
+        const { data: konselor } = await supabaseClient
+            .from('konselor')
+            .select('id, level, jurusan, status, total_sesi, rating_rata, users:user_id(nama_lengkap, avatar_seed)')
+            .order('rating_rata', { ascending: false }).limit(3);
 
         if (konselor && konselor.length > 0) {
             container.innerHTML = konselor.map((k, index) => {
@@ -254,13 +202,14 @@ async function initIndexPage() {
                 const chartId = `dynamicChart_${k.id || index}`;
                 const kepuasanDesimal = fmtRating(k.rating_rata);
                 const kepuasanPersen = Math.round((k.rating_rata / 5) * 100) || 0;
+                const nama = k.users?.nama_lengkap || 'Konselor Sebaya';
 
                 return `
                 <div class="px-6 md:px-10 mb-4">
                     <div onclick="toggleAccordion('detail-${chartId}')" class="cursor-pointer flex flex-col md:flex-row items-start md:items-center justify-between p-4 px-6 md:px-8 bg-white rounded-3xl md:rounded-full shadow-sm hover:shadow-md border border-transparent hover:border-brand-blue/20 transition-all">
                         <div class="w-full md:w-1/3 flex items-center gap-4 mb-3 md:mb-0">
-                            <div class="w-10 h-10 flex items-center justify-center font-bold text-xs rounded-full bg-blue-50 text-brand-blue overflow-hidden"><img src="${avatarUrl(k.avatar_seed || k.nama_lengkap)}" class="w-full h-full object-cover"></div>
-                            <div><h3 class="font-bold text-gray-900 text-sm">${escapeHtml(k.nama_lengkap)}</h3><p class="text-[10px] text-gray-400">Level: ${escapeHtml(k.level || 'Peer')}</p></div>
+                            <div class="w-10 h-10 flex items-center justify-center font-bold text-xs rounded-full bg-blue-50 text-brand-blue overflow-hidden"><img src="${avatarUrl(k.users?.avatar_seed || nama)}" class="w-full h-full object-cover"></div>
+                            <div><h3 class="font-bold text-gray-900 text-sm">${escapeHtml(nama)}</h3><p class="text-[10px] text-gray-400">Level: ${escapeHtml(k.level || 'Peer')}</p></div>
                         </div>
                         <div class="w-full md:w-1/4 text-xs text-gray-600 font-medium mb-3 md:mb-0">${escapeHtml(k.jurusan || '-')}</div>
                         <div class="w-full md:w-1/4 flex items-center gap-1.5 text-xs font-bold text-gray-800 mb-3 md:mb-0"><span class="text-[#10B981]">★</span> ${kepuasanPersen}% <span class="text-[10px] text-gray-400 font-normal">(${k.total_sesi || 0} Sesi)</span></div>
@@ -291,15 +240,15 @@ async function initIndexPage() {
                     }
                 });
             }
-        } else {
-            container.innerHTML = '<div class="text-center py-8 text-gray-400 text-sm">Sistem belum merekam data konselor terbaik.</div>';
         }
     }
 
     await Promise.all([loadStats(), loadUlasan(), loadTopik(), loadKonselor()]);
 
+    // Sinkronisasi Real-Time Pangkalan Data Asli
     supabaseClient.channel('beranda-sinkronisasi-global')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'penilaian_sesi' }, () => { loadStats(); loadUlasan(); loadKonselor(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'kuesioner_evaluasi' }, loadStats)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'penilaian' }, () => { loadUlasan(); loadKonselor(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'sesi' }, () => { loadTopik(); loadKonselor(); }).subscribe();
 }
 
@@ -377,26 +326,25 @@ async function initProfilKonselorPage() {
     const containerUlasan = qs('[data-section="ulasan-konselor"]');
     if (containerUlasan) {
         const { data: ulasan } = await supabaseClient
-            .from('penilaian_sesi')
-            .select('komentar, skor_rata_konselor, created_at, users!penilaian_sesi_mahasiswa_fkey(program_studi)')
-            .eq('konselor_id', konselorId).not('komentar', 'is', null).order('created_at', { ascending: false }).limit(5);
+            .from('penilaian')
+            .select('komentar, skor_total, created_at, sesi(users:mahasiswa_id(program_studi))')
+            .eq('konselor_id', k.id).not('komentar', 'is', null).order('created_at', { ascending: false }).limit(5);
 
         if (ulasan && ulasan.length > 0) {
             containerUlasan.innerHTML = ulasan.map((u) => `
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                     <div class="flex justify-between items-center mb-3">
-                        <div class="text-brand-green text-xs">${'★'.repeat(Math.round(u.skor_rata_konselor || 0))}</div>
+                        <div class="text-brand-green text-xs">${'★'.repeat(Math.round(u.skor_total || 5))}</div>
                         <span class="text-xs text-gray-400">${waktuRelatif(u.created_at)}</span>
                     </div>
                     <p class="text-sm text-gray-600 mb-4 leading-relaxed">"${escapeHtml(u.komentar)}"</p>
                     <div class="flex items-center gap-3">
-                        <div class="w-6 h-6 bg-slate-200 rounded-full overflow-hidden"><img src="${avatarUrl(u.users?.program_studi)}" class="w-full h-full object-cover"></div>
-                        <span class="text-xs font-medium text-gray-500">Mahasiswa ${escapeHtml(u.users?.program_studi || '')}</span>
+                        <div class="w-6 h-6 bg-slate-200 rounded-full overflow-hidden"><img src="${avatarUrl(u.sesi?.users?.program_studi)}" class="w-full h-full object-cover"></div>
+                        <span class="text-xs font-medium text-gray-500">Mahasiswa ${escapeHtml(u.sesi?.users?.program_studi || 'Polimedia')}</span>
                     </div>
-                </div>
-            `).join('');
+                </div>`).join('');
         } else {
-            containerUlasan.innerHTML = '<div class="text-center py-6 text-gray-400 text-sm">Belum ada ulasan.</div>';
+            containerUlasan.innerHTML = '<div class="text-center py-6 text-gray-400 text-sm">Belum ada ulasan untuk konselor ini.</div>';
         }
     }
 }
@@ -527,7 +475,7 @@ async function initRingkasanSesiPage() {
 }
 
 // ----------------------------------------------------------------------
-// 11. HALAMAN PENILAIAN (penilaian.html)
+// 11. HALAMAN PENILAIAN (penilaian.html) -> SINKRON TABEL PENILAIAN ASLI
 // ----------------------------------------------------------------------
 function initPenilaianPage() {
     const form = document.getElementById('evaluationForm');
@@ -546,21 +494,16 @@ function initPenilaianPage() {
         const num = (name) => parseInt(formData.get(name), 10);
 
         btnSubmit.disabled = true; btnSubmit.innerHTML = 'Menyimpan...';
-        const { data: sesi } = await supabaseClient.from('sesi').select('konselor_id').eq('id', sesiId).single();
-        if (!sesi) { alert('Sesi tidak ditemukan.'); btnSubmit.disabled = false; return; }
 
         const payload = {
             sesi_id: sesiId,
-            mahasiswa_id: profile.id,
-            konselor_id: sesi.konselor_id,
-            q_empati: num('qA1') || 5, q_komunikasi: num('qA2') || 5, q_solusi: num('qB1') || 5,
-            q_navigasi: num('qW1') || 5, q_visual: num('qW2') || 5,
-            rekomendasi: formData.get('rekomendasi') === 'ya',
+            skor_total: Number(((num('qA1') + num('qA2') + num('qB1') + num('qW1') + num('qW2')) / 5).toFixed(2)),
+            rekomendasi: formData.get('rekomendasi') === 'ya' ? 1 : 0,
             komentar: formData.get('saran') || null,
         };
 
-        const { error } = await supabaseClient.from('penilaian_sesi').insert([payload]);
-        if (error) { alert('Gagal mengirim penilaian: ' + error.message); btnSubmit.disabled = false; btnSubmit.innerHTML = 'Kirim Penilaian'; return; }
+        const { error } = await supabaseClient.from('penilaian').insert([payload]);
+        if (error) { alert('Gagal mengirim penilaian: ' + error.message); btnSubmit.disabled = false; return; }
 
         localStorage.removeItem('active_session_id');
         alert('Penilaian Anda berhasil tersimpan.');
@@ -611,7 +554,7 @@ async function initRiwayatPage() {
 }
 
 // ----------------------------------------------------------------------
-// 13. HALAMAN DASHBOARD ANALISIS (dashboard.html)
+// 13. HALAMAN DASHBOARD ANALISIS (dashboard.html) -> SINKRON TABEL EVALUASI
 // ----------------------------------------------------------------------
 window.initDashboardPage = async () => {
     const label = document.getElementById('dataSourceLabel');
@@ -620,10 +563,10 @@ window.initDashboardPage = async () => {
 
     let rawData = [];
     const fetchDashboardData = async () => {
-        const { data, error } = await supabaseClient.from('penilaian_sesi').select('*, users!penilaian_sesi_mahasiswa_fkey(program_studi)');
+        const { data, error } = await supabaseClient.from('kuesioner_evaluasi').select('*');
         if (error) { label.textContent = '⚠ Galat: ' + error.message; return; }
         rawData = data || [];
-        label.textContent = '🟢 Terhubung ke Supabase Realtime (penilaian_sesi)';
+        label.textContent = '🟢 Terhubung ke Supabase Realtime (kuesioner_evaluasi)';
         updateDashboard(rawData);
     };
 
@@ -634,7 +577,7 @@ window.initDashboardPage = async () => {
     });
 
     supabaseClient.channel('dashboard-metrics')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'penilaian_sesi' }, fetchDashboardData).subscribe();
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'kuesioner_evaluasi' }, fetchDashboardData).subscribe();
 };
 
 function updateDashboard(data) {
@@ -645,7 +588,7 @@ function updateDashboard(data) {
 
     const filtered = data.filter(row => {
         const rowDate = new Date(row.created_at);
-        const matchJurusan = filterJurusan === 'Semua Jurusan' || (row.users && row.users.program_studi === filterJurusan);
+        const matchJurusan = filterJurusan === 'Semua Jurusan' || row.jurusan === filterJurusan;
         return matchJurusan && rowDate >= start && rowDate <= end;
     });
 
@@ -653,7 +596,10 @@ function updateDashboard(data) {
     setText('#statTotal', total); setText('#statTotal2', total);
     
     if(total > 0) {
-        const sum = filtered.reduce((a, b) => a + b.skor_rata_konselor, 0);
+        let sum = 0;
+        filtered.forEach(row => {
+            sum += (row.q_mendengarkan + row.q_memahami + row.q_penjelasan + row.q_solusi + row.q_komunikasi + row.q_profesional + row.q_nyaman + row.q_rahasia) / 8;
+        });
         setText('#statMean', (sum / total).toFixed(2));
         setText('#rekPct', Math.round((filtered.filter(r => r.rekomendasi).length / total) * 100) + '%');
     } else {
@@ -677,5 +623,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     else if (path === 'ringkasan-sesi.html') await initRingkasanSesiPage();
     else if (path === 'penilaian.html') initPenilaianPage();
     else if (path === 'riwayat.html') await initRiwayatPage();
-    else if (path === 'dashboard.html' && typeof window.initDashboardPage === 'function') await window.initDashboardPage();
+    else if (path === 'dashboard.html') await window.initDashboardPage();
 });
