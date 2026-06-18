@@ -222,7 +222,6 @@ window.handleRegister = async (e) => {
 // 5. HALAMAN BERANDA (index.html) -> DIGABUNG DENGAN UI AKORDEON
 // ----------------------------------------------------------------------
 
-// Fungsi Buka-Tutup Akordeon untuk index.html
 window.toggleAccordion = function(id) {
     const target = document.getElementById(id);
     if (!target) return;
@@ -232,7 +231,7 @@ window.toggleAccordion = function(id) {
 };
 
 async function initIndexPage() {
-    // 1. Tarik Data Metrik Utama (dari View asli)
+    // 1. Tarik Data Metrik Utama
     const { data: homeStats } = await supabaseClient.from('v_home_stats').select('*').single();
     if (homeStats) {
         setText('#homeTotalResponden', homeStats.total_responden ?? 0);
@@ -240,107 +239,80 @@ async function initIndexPage() {
         setText('#homePersenRekomendasi', `${homeStats.persen_rekomendasi ?? 0}%`);
     }
 
-    // 2. Tarik Data Ulasan (dari Tabel penilaian)
+    // 2. Tarik Data Ulasan dari Tabel Statis (ulasan_sesi)
     const containerUlasan = document.getElementById('ulasanContainer');
     if (containerUlasan) {
-        const { data: ulasan } = await supabaseClient
-            .from('penilaian')
-            .select('komentar, skor_total, created_at, users:mahasiswa_id(program_studi)')
-            .not('komentar', 'is', null)
-            .order('created_at', { ascending: false })
-            .limit(3);
+        const { data: ulasan } = await supabaseClient.from('ulasan_sesi').select('*').order('id', { ascending: true }).limit(3);
 
         if (ulasan && ulasan.length > 0) {
-            containerUlasan.innerHTML = ulasan.map((u) => {
-                const rating = Math.round(u.skor_total || 5);
-                return `
+            containerUlasan.innerHTML = ulasan.map((u) => `
                 <div class="bg-white p-6 rounded-3xl border border-gray-100 card-shadow flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-start mb-4">
-                            <div class="text-[#F59E0B] text-xs tracking-widest">${'★'.repeat(rating)}</div>
-                            <span class="text-[10px] text-gray-400">${waktuRelatif(u.created_at)}</span>
+                            <div class="text-[#F59E0B] text-xs tracking-widest">${'★'.repeat(u.rating || 5)}</div>
+                            <span class="text-[10px] text-gray-400">${escapeHtml(u.waktu)}</span>
                         </div>
-                        <p class="text-sm text-gray-600 leading-relaxed mb-6">"${escapeHtml(u.komentar)}"</p>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-6">"${escapeHtml(u.teks_ulasan)}"</p>
                     </div>
                     <div class="flex items-center gap-3 pt-4 border-t border-gray-50">
-                        <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden">
-                            <img src="${avatarUrl(u.users?.program_studi || 'Student')}" class="w-full h-full object-cover">
-                        </div>
-                        <h4 class="text-[11px] font-bold text-gray-800">Mahasiswa ${escapeHtml(u.users?.program_studi || 'Polimedia')}</h4>
+                        <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden"></div>
+                        <h4 class="text-[11px] font-bold text-gray-800">${escapeHtml(u.identitas)}</h4>
                     </div>
-                </div>`;
-            }).join('');
+                </div>`).join('');
         } else {
             containerUlasan.innerHTML = '<div class="col-span-3 text-center py-10 text-gray-400 text-sm">Belum ada ulasan tersedia.</div>';
         }
     }
 
-    // 3. Tarik Data Topik (dari Tabel sesi yang asli)
+    // 3. Tarik Data Topik dari Tabel Statis (topik_konseling)
     const containerTopik = document.getElementById('topikContainer');
     if (containerTopik) {
-        const { data: sesiTopik } = await supabaseClient
-            .from('sesi')
-            .select('topik')
-            .eq('status', 'Selesai')
-            .not('topik', 'is', null);
+        const { data: topikData } = await supabaseClient.from('topik_konseling').select('*').order('persentase', { ascending: false });
 
-        if (sesiTopik && sesiTopik.length > 0) {
-            const counts = {};
-            sesiTopik.forEach((s) => { counts[s.topik] = (counts[s.topik] || 0) + 1; });
-            const total = sesiTopik.length;
-            const palet = ['#00668F', '#4D7C0F', '#4F46E5', '#D97706', '#E11D48'];
-            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
-
-            containerTopik.innerHTML = sorted.map(([nama, jumlah], i) => {
-                const persen = Math.round((jumlah / total) * 100);
-                const warna = palet[i % palet.length];
-                return `
+        if (topikData && topikData.length > 0) {
+            containerTopik.innerHTML = topikData.map((item) => `
                 <div>
                     <div class="flex justify-between text-xs font-bold text-gray-900 mb-2">
-                        <span>${escapeHtml(nama).toUpperCase()}</span>
-                        <span style="color: ${warna}">${persen}%</span>
+                        <span>${escapeHtml(item.nama_topik).toUpperCase()}</span>
+                        <span style="color: ${item.kode_warna_hex}">${item.persentase}%</span>
                     </div>
                     <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div style="background-color: ${warna}; width: ${persen}%" class="h-full rounded-full"></div>
+                        <div style="background-color: ${item.kode_warna_hex}; width: ${item.persentase}%" class="h-full rounded-full"></div>
                     </div>
-                </div>`;
-            }).join('');
+                </div>`).join('');
         } else {
             containerTopik.innerHTML = '<div class="text-center py-4 text-gray-400 text-sm">Belum ada data topik.</div>';
         }
     }
 
-    // 4. Tarik Profil Konselor dengan Akordeon & Chart
+    // 4. Tarik Profil Konselor dari Tabel Statis (profil_konselor)
     const containerKonselor = document.getElementById('konselorContainer');
     if (containerKonselor) {
-        const { data: konselor, error } = await supabaseClient.from('v_konselor_terbaik').select('*').limit(3);
+        const { data: konselor } = await supabaseClient.from('profil_konselor').select('*').order('kepuasan_persen', { ascending: false }).limit(3);
 
-        if (!error && konselor && konselor.length > 0) {
+        if (konselor && konselor.length > 0) {
             containerKonselor.innerHTML = konselor.map((k, index) => {
-                const isTersedia = k.status === 'Tersedia';
-                const statusHTML = isTersedia
+                const statusHTML = k.status_tersedia
                     ? `<span class="bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 border border-green-100"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Tersedia</span>`
                     : `<span class="bg-gray-100 text-gray-500 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 border border-gray-200">Sesi Penuh</span>`;
                 
                 const chartId = `dynamicChart_${k.id || index}`;
-                const kepuasanDesimal = fmtRating(k.rating_rata);
-                const kepuasanPersen = Math.round((k.rating_rata / 5) * 100) || 0;
 
                 return `
                 <div class="px-6 md:px-10 mb-4">
                     <div onclick="toggleAccordion('detail-${chartId}')" class="cursor-pointer flex flex-col md:flex-row items-start md:items-center justify-between p-4 px-6 md:px-8 bg-white rounded-3xl md:rounded-full shadow-sm hover:shadow-md border border-transparent hover:border-brand-blue/20 transition-all">
                         <div class="w-full md:w-1/3 flex items-center gap-4 mb-3 md:mb-0">
-                            <div class="w-10 h-10 flex items-center justify-center font-bold text-xs rounded-full bg-blue-50 text-brand-blue overflow-hidden">
-                                <img src="${avatarUrl(k.avatar_seed || k.nama_lengkap)}" class="w-full h-full object-cover">
+                            <div class="w-10 h-10 flex items-center justify-center font-bold text-xs rounded-full" style="background-color: ${k.warna_bg}; color: ${k.warna_teks};">
+                                ${escapeHtml(k.inisial)}
                             </div>
                             <div>
                                 <h3 class="font-bold text-gray-900 text-sm group-hover:text-brand-blue transition">${escapeHtml(k.nama_lengkap)}</h3>
-                                <p class="text-[10px] text-gray-400">Level: ${escapeHtml(k.level || 'Peer')}</p>
+                                <p class="text-[10px] text-gray-400">Level: ${escapeHtml(k.level)}</p>
                             </div>
                         </div>
-                        <div class="w-full md:w-1/4 text-xs text-gray-600 font-medium mb-3 md:mb-0">${escapeHtml(k.jurusan || '-')}</div>
+                        <div class="w-full md:w-1/4 text-xs text-gray-600 font-medium mb-3 md:mb-0">${escapeHtml(k.jurusan)}</div>
                         <div class="w-full md:w-1/4 flex items-center gap-1.5 text-xs font-bold text-gray-800 mb-3 md:mb-0">
-                            <span class="text-[#10B981]">★</span> ${kepuasanPersen}% <span class="text-[10px] text-gray-400 font-normal">(${k.total_sesi || 0} Sesi)</span>
+                            <span class="text-[#10B981]">★</span> ${k.kepuasan_persen}% <span class="text-[10px] text-gray-400 font-normal">(${k.total_sesi} Sesi)</span>
                         </div>
                         <div class="w-full md:w-1/6 flex justify-start md:justify-end">${statusHTML}</div>
                     </div>
@@ -350,7 +322,7 @@ async function initIndexPage() {
                             <div>
                                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Rata-rata Penilaian</p>
                                 <div class="flex items-baseline gap-2 mb-2">
-                                    <h3 class="text-4xl font-black text-gray-900">${kepuasanDesimal}</h3>
+                                    <h3 class="text-4xl font-black text-gray-900">${k.kepuasan_desimal}</h3>
                                     <span class="text-sm font-bold text-gray-400">/ 5.0</span>
                                 </div>
                             </div>
@@ -367,7 +339,6 @@ async function initIndexPage() {
                 `;
             }).join('');
 
-            // Inisialisasi Chart.js untuk setiap Konselor
             if (typeof Chart !== 'undefined') {
                 const chartOptions = {
                     responsive: true, maintainAspectRatio: false,
@@ -386,7 +357,7 @@ async function initIndexPage() {
                             data: {
                                 labels: ['Sesi 1', 'Sesi 2', 'Sesi 3', 'Sesi 4', 'Terkini'],
                                 datasets: [{
-                                    data: [0, 0, 0, 0, k.rating_rata],
+                                    data: [0, 0, 0, 0, k.kepuasan_desimal],
                                     backgroundColor: ['#F1F5F9', '#F1F5F9', '#F1F5F9', '#F1F5F9', '#0F172A'],
                                     borderRadius: 4, barThickness: 32
                                 }]
