@@ -166,19 +166,5 @@
     </div>
 
     <script src="js/api.js"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const profile = await window.PolimediaAuth.getProfile();
-            if (profile && profile.role === 'konselor') {
-                const headerNama = document.getElementById('headerNamaKonselor');
-                const headerInfo = document.getElementById('headerInfoKonselor');
-                const k = Array.isArray(profile.konselor) ? profile.konselor[0] : profile.konselor;
-                
-                if (headerNama) headerNama.textContent = profile.nama_lengkap;
-                if (headerInfo && k) headerInfo.textContent = `${profile.nim} • ${k.jurusan}`;
-            }
-        });
-    </script>
 </body>
 </html>

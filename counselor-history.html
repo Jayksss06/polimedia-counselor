@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Session History - Counselor Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -14,6 +15,7 @@
                         'brand-dark': '#004A6A',
                         'bg-light': '#F4F7F9',
                         'sidebar-active': '#E0F2FE',
+                        'brand-green': '#10B981',
                     },
                     fontFamily: {
                         'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
@@ -28,8 +30,9 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        .review-card { transition: all 0.3s ease; }
-        .review-card:hover { transform: translateY(-5px); }
+        /* Animasi mulus untuk kartu ulasan baru */
+        .fade-in-up { animation: fadeInUp 0.4s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-bg-light font-sans text-gray-800 h-screen flex overflow-hidden">
@@ -55,8 +58,8 @@
         </div>
 
         <div class="p-6">
-            <button class="w-full bg-brand-blue hover:bg-brand-dark text-white py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 shadow-sm">
-                <span>+</span> Start New Session
+            <button data-action="logout" id="btnLogoutSidebar" class="w-full bg-red-50 hover:bg-red-100 text-red-600 py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 shadow-sm border border-red-100">
+                <span>🚪</span> Keluar
             </button>
         </div>
     </aside>
@@ -66,13 +69,14 @@
         <header class="h-20 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-8 z-10 sticky top-0">
             <div class="flex items-center bg-gray-50 rounded-full px-4 py-2 w-96 border border-gray-100">
                 <span class="text-gray-400 text-sm">🔍</span>
-                <input type="text" id="filterInput" placeholder="Cari ulasan atau nama mahasiswa..." class="bg-transparent border-none outline-none ml-2 text-sm w-full text-gray-600 placeholder-gray-400">
+                <input type="text" id="filterInput" placeholder="Cari isi ulasan atau asal prodi..." class="bg-transparent border-none outline-none ml-2 text-sm w-full text-gray-600 placeholder-gray-400">
             </div>
 
             <div class="flex items-center gap-4">
+                <button data-action="logout" id="btnLogout" class="text-xs font-bold text-red-500 hover:underline md:hidden">Keluar</button>
                 <button class="text-gray-400 hover:text-gray-600">🔔</button>
                 <div class="w-9 h-9 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Siti" alt="Profile" class="w-full h-full object-cover">
+                    <img data-nav="avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" alt="Profile" class="w-full h-full object-cover">
                 </div>
             </div>
         </header>
@@ -82,125 +86,38 @@
 
                 <div class="mb-12">
                     <h1 class="text-4xl text-brand-blue font-script italic font-medium mb-3">Apa kata mereka?</h1>
-                    <p class="text-gray-500 max-w-2xl leading-relaxed">Setiap percakapan membawa dampak. Inilah galeri apresiasi dan penilaian diri dari mahasiswa yang telah kamu bantu dalam perjalanan pemulihan mereka.</p>
+                    <p class="text-gray-500 max-w-2xl leading-relaxed">Setiap percakapan membawa dampak. Inilah galeri apresiasi dan penilaian dari mahasiswa yang telah Anda bantu dalam perjalanan pemulihan mereka.</p>
                 </div>
 
-                <div id="reviewsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    
-                    <div class="review-card bg-white p-6 rounded-[32px] shadow-sm border border-gray-100 flex flex-col justify-between">
-                        <div>
-                            <div class="text-[#F59E0B] text-sm mb-4 tracking-widest">★★★★★</div>
-                            <p class="text-gray-700 text-sm italic leading-relaxed mb-6">"Sangat membantu, terima kasih! Konselor sangat tenang dan mendengarkan tanpa menghakimi. Saya merasa jauh lebih ringan."</p>
-                        </div>
-                        <div class="flex justify-between items-center pt-4 border-t border-gray-50">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">12 OKT 2026</span>
-                            <span class="text-xs font-bold text-brand-blue">ANDI N.</span>
-                        </div>
-                    </div>
-
-                    <div class="review-card bg-white p-6 rounded-[32px] shadow-sm border border-gray-100 flex flex-col justify-between">
-                        <div>
-                            <div class="text-[#F59E0B] text-sm mb-4 tracking-widest">★★★★★</div>
-                            <p class="text-gray-700 text-sm italic leading-relaxed mb-6">"Cara penyampaiannya sangat lembut. Meskipun saya menangis, respon yang diberikan sangat menenangkan bagi saya."</p>
-                        </div>
-                        <div class="flex justify-between items-center pt-4 border-t border-gray-50">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">08 OKT 2026</span>
-                            <span class="text-xs font-bold text-brand-blue">SISKA P.</span>
-                        </div>
-                    </div>
-
-                    <div class="review-card bg-white p-6 rounded-[32px] shadow-sm border border-gray-100 flex flex-col justify-between">
-                        <div>
-                            <div class="text-[#F59E0B] text-sm mb-4 tracking-widest">★★★★☆</div>
-                            <p class="text-gray-700 text-sm italic leading-relaxed mb-6">"Menemukan solusi yang sangat praktis untuk masalah KRS saya. Terima kasih kak Siti atas arahannya."</p>
-                        </div>
-                        <div class="flex justify-between items-center pt-4 border-t border-gray-50">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">05 OKT 2026</span>
-                            <span class="text-xs font-bold text-brand-blue">DIMAZ P.</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-brand-blue p-8 rounded-[32px] shadow-lg text-white flex flex-col justify-center relative overflow-hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-brand-blue p-8 rounded-[24px] shadow-sm text-white flex flex-col justify-center relative overflow-hidden h-full">
                         <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                         <div class="relative z-10">
                             <div class="text-3xl mb-4">✨</div>
                             <h3 class="text-2xl font-bold mb-2">Dampak Nyata</h3>
-                            <p class="text-sm text-blue-100 leading-relaxed mb-6">Bersama, kita telah membantu puluhan mahasiswa Polimedia kembali tersenyum.</p>
-                            <div class="bg-white/10 p-4 rounded-2xl border border-white/20">
-                                <h4 class="text-3xl font-black mb-1">95%</h4>
-                                <p class="text-[10px] font-bold uppercase tracking-widest">Kepuasan Mahasiswa</p>
+                            <p class="text-xs text-blue-100 leading-relaxed mb-6">Bersama, kita telah membantu banyak mahasiswa kembali tersenyum.</p>
+                            <div class="bg-white/10 p-3 rounded-2xl border border-white/20 inline-block">
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-white">Tetap Semangat!</p>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="review-card bg-white p-6 rounded-[32px] shadow-sm border border-gray-100 flex flex-col justify-between">
-                        <div>
-                            <div class="text-[#F59E0B] text-sm mb-4 tracking-widest">★★★★★</div>
-                            <p class="text-gray-700 text-sm italic leading-relaxed mb-6">"Sangat ramah dan sabar. Saya tidak merasa terburu-buru selama sesi. I would highly recommend this counselor!"</p>
-                        </div>
-                        <div class="flex justify-between items-center pt-4 border-t border-gray-50">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">28 SEP 2026</span>
-                            <span class="text-xs font-bold text-brand-blue">ANTONIA S.</span>
-                        </div>
+                <div id="reviewsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="col-span-full flex flex-col items-center justify-center py-16 text-gray-400 text-sm">
+                        <span class="w-6 h-6 border-2 border-brand-blue border-t-transparent rounded-full animate-spin mb-3"></span>
+                        Mengompilasi riwayat ulasan Anda...
                     </div>
-
-                    <div class="review-card bg-white p-6 rounded-[32px] shadow-sm border border-gray-100 flex flex-col justify-between">
-                        <div>
-                            <div class="text-[#F59E0B] text-sm mb-4 tracking-widest">★★★★★</div>
-                            <p class="text-gray-700 text-sm italic leading-relaxed mb-6">"Memberikan perspektif baru yang belum pernah saya pikirkan sebelumnya. Membantu saya melihat masalah dengan cara yang lebih positif."</p>
-                        </div>
-                        <div class="flex justify-between items-center pt-4 border-t border-gray-50">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">24 SEP 2026</span>
-                            <span class="text-xs font-bold text-brand-blue">RAKHA M.</span>
-                        </div>
-                    </div>
-
-                    <div class="review-card bg-white p-6 rounded-[32px] shadow-sm border border-gray-100 flex flex-col justify-between">
-                        <div>
-                            <div class="text-[#F59E0B] text-sm mb-4 tracking-widest">★★★★★</div>
-                            <p class="text-gray-700 text-sm italic leading-relaxed mb-6">"Sangat empati. Saya merasa didengar dan didukung sepenuhnya selama sesi berlangsung."</p>
-                        </div>
-                        <div class="flex justify-between items-center pt-4 border-t border-gray-50">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">20 SEP 2026</span>
-                            <span class="text-xs font-bold text-brand-blue">BAGUS W.</span>
-                        </div>
-                    </div>
-
                 </div>
 
                 <div class="mt-16 text-center">
-                    <p class="text-gray-400 text-sm italic">"Mendengarkan adalah bentuk cinta yang paling murni."</p>
-                    <div class="mt-4 flex justify-center gap-2">
-                        <div class="w-1.5 h-1.5 rounded-full bg-brand-blue"></div>
-                        <div class="w-1.5 h-1.5 rounded-full bg-gray-200"></div>
-                        <div class="w-1.5 h-1.5 rounded-full bg-gray-200"></div>
-                    </div>
+                    <p class="text-gray-400 text-sm italic">"Mendengarkan adalah bentuk kepedulian yang paling murni."</p>
                 </div>
 
             </div>
         </main>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const filterInput = document.getElementById('filterInput');
-            const reviewCards = document.querySelectorAll('.review-card');
-
-            // Fitur Filter Real-time
-            filterInput.addEventListener('input', (e) => {
-                const term = e.target.value.toLowerCase();
-                
-                reviewCards.forEach(card => {
-                    const text = card.textContent.toLowerCase();
-                    if(text.includes(term)) {
-                        card.style.display = 'flex';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        });
-    </script>
     <script src="js/api.js"></script>
 </body>
 </html>

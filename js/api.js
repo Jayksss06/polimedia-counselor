@@ -1154,14 +1154,22 @@ async function getTrenPenilaian(konselorId) {
 // FASE D: HALAMAN DASHBOARD UTAMA KONSELOR (counselor-dashboard.html)
 // ----------------------------------------------------------------------
 async function initCounselorDashboardPage() {
-    // 1. Guard Keamanan Akses
+    // 1. Guard Keamanan Akses (Pemanggilan API hanya terjadi SEKALI di sini)
     const profile = await verifyCounselorGuard();
     if (!profile) return;
 
-    const konselorId = Array.isArray(profile.konselor) ? profile.konselor[0]?.id : profile.konselor?.id;
+    const konselorObj = Array.isArray(profile.konselor) ? profile.konselor[0] : profile.konselor;
+    const konselorId = konselorObj?.id;
     if (!konselorId) return;
 
-    // DOM Elements
+    // --- FIX BUG: Injeksi Data Header Langsung dari Objek Profil ---
+    const headerNama = document.getElementById('headerNamaKonselor');
+    const headerInfo = document.getElementById('headerInfoKonselor');
+    if (headerNama) headerNama.textContent = profile.nama_lengkap;
+    if (headerInfo) headerInfo.textContent = `${profile.nim || '-'} • ${konselorObj.jurusan || '-'}`;
+    // ---------------------------------------------------------------
+
+    // DOM Elements (Lanjutan kode asli Anda...)
     const toggle = document.getElementById('toggleKetersediaan');
     const statusText = document.getElementById('statusText');
     const labelStatus = document.getElementById('labelStatus');
