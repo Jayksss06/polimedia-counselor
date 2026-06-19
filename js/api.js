@@ -433,25 +433,99 @@ async function initPenjadwalanPage() {
     const profile = await auth.requireLogin(); if (!profile) return;
     if (profile.role !== 'mahasiswa') { window.location.href = 'index.html'; return; }
 
-    const params = new URLSearchParams(window.location.search); const konselorId = params.get('konselor_id');
-    const btnConfirm = document.getElementById('btn-confirm'); if (!btnConfirm || !konselorId) return;
+    const params = new URLSearchParams(window.location.search); 
+    const konselorId = params.get('konselor_id');
+    const btnConfirm = document.getElementById('btn-confirm'); 
+    if (!btnConfirm || !konselorId) return;
 
     const { data: k } = await supabaseClient.from('konselor').select('users(nama_lengkap)').eq('id', konselorId).single();
     if (k) qsa('[data-konselor="nama-jadwal"]').forEach((el) => { el.textContent = k.users?.nama_lengkap; });
 
     let selectedDate = null, selectedTime = null;
-    const dateButtons = qsa('.date-btn'), timeButtons = qsa('.time-btn');
-    const summaryDate = document.getElementById('summary-date'), summaryTime = document.getElementById('summary-time');
+    const summaryDate = document.getElementById('summary-date');
+    const summaryTime = document.getElementById('summary-time');
 
-    dateButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            dateButtons.forEach(b => { b.classList.remove('bg-brand-green', 'text-white'); b.classList.add('bg-green-50', 'text-brand-green'); });
-            btn.classList.remove('bg-green-50', 'text-brand-green'); btn.classList.add('bg-brand-green', 'text-white');
-            selectedDate = btn.getAttribute('data-full-date');
-            if (summaryDate) summaryDate.textContent = formatTanggalIndo(selectedDate);
+    // === INJEKSI MESIN KALENDER DINAMIS ===
+    const monthYearDisplay = document.getElementById('monthYearDisplay');
+    const calendarGrid = document.getElementById('calendar-grid');
+    const prevMonthBtn = document.getElementById('prevMonthBtn');
+    const nextMonthBtn = document.getElementById('nextMonthBtn');
+
+    let currentViewDate = new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Nol-kan jam untuk perbandingan komparatif tanggal
+
+    const namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+    function renderCalendar() {
+        if (!calendarGrid) return;
+        calendarGrid.innerHTML = '';
+        
+        const year = currentViewDate.getFullYear();
+        const month = currentViewDate.getMonth();
+
+        // Pembaruan teks Header Bulan
+        if (monthYearDisplay) monthYearDisplay.textContent = `${namaBulan[month]} ${year}`;
+
+        // Mengkalkulasi Hari
+        const firstDay = new Date(year, month, 1).getDay(); // 0 = Minggu
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const prevMonthDays = new Date(year, month, 0).getDate();
+
+        // Merender tanggal redup dari bulan sebelumnya (untuk mengisi kekosongan baris pertama)
+        for (let i = 0; i < firstDay; i++) {
+            const dayNum = prevMonthDays - firstDay + i + 1;
+            calendarGrid.innerHTML += `<div class="text-gray-300 py-2">${dayNum}</div>`;
+        }
+
+        // Merender tanggal untuk bulan yang sedang aktif
+        for (let i = 1; i <= daysInMonth; i++) {
+            const cellDate = new Date(year, month, i);
+            const isPast = cellDate < today;
+            const fullDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+
+            if (isPast) {
+                // Tanggal yang sudah lewat tidak bisa diklik
+                calendarGrid.innerHTML += `<div class="py-2 text-gray-400 cursor-not-allowed">${i}</div>`;
+            } else {
+                // Tanggal valid di masa depan
+                const isSelected = selectedDate === fullDateStr;
+                const baseClasses = "date-btn py-2 font-semibold rounded-full cursor-pointer transition-colors duration-300";
+                const stateClasses = isSelected
+                    ? "bg-brand-green text-white shadow-md"
+                    : "bg-green-50 text-brand-green hover:bg-green-100";
+
+                calendarGrid.innerHTML += `<div class="${baseClasses} ${stateClasses}" data-full-date="${fullDateStr}">${i}</div>`;
+            }
+        }
+
+        // Memasang ulang Event Listener setelah elemen disuntikkan ke DOM
+        document.querySelectorAll('.date-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                selectedDate = btn.getAttribute('data-full-date');
+                if (summaryDate) summaryDate.textContent = formatTanggalIndo(selectedDate);
+                renderCalendar(); // Re-render untuk memperbarui efek visual (titik hijau)
+            });
         });
+    }
+
+    // Navigasi Pindah Bulan
+    if (prevMonthBtn) prevMonthBtn.addEventListener('click', () => {
+        currentViewDate.setMonth(currentViewDate.getMonth() - 1);
+        renderCalendar();
     });
 
+    if (nextMonthBtn) nextMonthBtn.addEventListener('click', () => {
+        currentViewDate.setMonth(currentViewDate.getMonth() + 1);
+        renderCalendar();
+    });
+
+    // Panggil mesin render untuk pertama kalinya
+    renderCalendar();
+    // =======================================
+
+    // Mengelola Pilihan Jam
+    const timeButtons = qsa('.time-btn');
     timeButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             timeButtons.forEach(b => { b.classList.remove('bg-brand-blue', 'text-white'); b.classList.add('bg-slate-50', 'text-gray-600'); });
@@ -460,9 +534,11 @@ async function initPenjadwalanPage() {
         });
     });
 
+    // Mengelola Tombol Konfirmasi Sesi
     btnConfirm.addEventListener('click', async () => {
         if (!selectedDate || !selectedTime) { alert('Pilih tanggal dan jam terlebih dahulu.'); return; }
         btnConfirm.disabled = true; btnConfirm.innerHTML = 'Menjadwalkan...';
+        
         const topikSelect = document.getElementById('topik-sesi');
         const { data: sesi, error } = await supabaseClient.from('sesi').insert([{
             kode_sesi: `SES-${Date.now()}`, mahasiswa_id: profile.id, konselor_id: konselorId,
@@ -470,7 +546,8 @@ async function initPenjadwalanPage() {
         }]).select().single();
 
         if (error) { alert('Gagal menjadwalkan: ' + error.message); btnConfirm.disabled = false; btnConfirm.innerHTML = 'Konfirmasi Jadwal'; return; }
-        localStorage.setItem('active_session_id', sesi.id); window.location.href = 'live-chat.html?sesi_id=' + sesi.id;
+        localStorage.setItem('active_session_id', sesi.id); 
+        window.location.href = 'live-chat.html?sesi_id=' + sesi.id;
     });
 }
 

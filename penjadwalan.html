@@ -80,10 +80,10 @@
                 
                 <div>
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-lg font-bold text-gray-800">Juni 2026</h2>
+                        <h2 id="monthYearDisplay" class="text-lg font-bold text-gray-800">Memuat...</h2>
                         <div class="flex gap-4 text-gray-400 font-bold">
-                            <button class="hover:text-brand-blue transition">&lt;</button>
-                            <button class="hover:text-brand-blue transition">&gt;</button>
+                            <button id="prevMonthBtn" class="hover:text-brand-blue transition px-2">&lt;</button>
+                            <button id="nextMonthBtn" class="hover:text-brand-blue transition px-2">&gt;</button>
                         </div>
                     </div>
 
@@ -92,46 +92,6 @@
                     </div>
 
                     <div class="grid grid-cols-7 gap-y-4 gap-x-2 text-center text-sm" id="calendar-grid">
-                        <div class="text-gray-300 py-2">31</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">1</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">2</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">3</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">4</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">5</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">6</div>
-
-                        <div class="py-2 text-gray-400 cursor-not-allowed">7</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">8</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">9</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">10</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">11</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">12</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">13</div>
-
-                        <div class="py-2 text-gray-400 cursor-not-allowed">14</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">15</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">16</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">17</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">18</div>
-                        
-                        <div class="date-btn py-2 bg-brand-green text-white font-bold rounded-full cursor-pointer shadow-md transition-colors duration-300" data-date="19" data-full-date="2026-06-19">19</div>
-                        <div class="date-btn py-2 bg-green-50 text-brand-green font-semibold rounded-full cursor-pointer hover:bg-green-100 transition-colors duration-300" data-date="20" data-full-date="2026-06-20">20</div>
-                        
-                        <div class="py-2 text-gray-400 cursor-not-allowed">21</div>
-                        <div class="date-btn py-2 bg-green-50 text-brand-green font-semibold rounded-full cursor-pointer hover:bg-green-100 transition-colors duration-300" data-date="22" data-full-date="2026-06-22">22</div>
-                        <div class="date-btn py-2 bg-green-50 text-brand-green font-semibold rounded-full cursor-pointer hover:bg-green-100 transition-colors duration-300" data-date="23" data-full-date="2026-06-23">23</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">24</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">25</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">26</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">27</div>
-
-                        <div class="py-2 text-gray-400 cursor-not-allowed">28</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">29</div>
-                        <div class="py-2 text-gray-400 cursor-not-allowed">30</div>
-                        <div class="text-gray-300 py-2">1</div>
-                        <div class="text-gray-300 py-2">2</div>
-                        <div class="text-gray-300 py-2">3</div>
-                        <div class="text-gray-300 py-2">4</div>
                     </div>
 
                     <div class="mt-8 flex items-center gap-2 bg-slate-50 p-3 rounded-full text-xs text-gray-500">
@@ -143,7 +103,7 @@
                 <div>
                     <h2 class="text-lg font-bold text-gray-800 mb-6">Pilih Slot Waktu</h2>
                     <div class="grid grid-cols-2 gap-4" id="time-grid">
-                        <button class="time-btn w-full bg-brand-blue text-white py-3 rounded-full font-semibold shadow-md transition-all duration-300" data-time="09:00">09:00</button>
+                        <button class="time-btn w-full bg-slate-50 text-gray-600 py-3 rounded-full font-medium hover:bg-gray-100 transition-all duration-300 border border-gray-100" data-time="09:00">09:00</button>
                         <button class="time-btn w-full bg-slate-50 text-gray-600 py-3 rounded-full font-medium hover:bg-gray-100 transition-all duration-300 border border-gray-100" data-time="10:30">10:30</button>
                         <button class="time-btn w-full bg-slate-50 text-gray-600 py-3 rounded-full font-medium hover:bg-gray-100 transition-all duration-300 border border-gray-100" data-time="12:00">12:00</button>
                         <button class="time-btn w-full bg-slate-50 text-gray-600 py-3 rounded-full font-medium hover:bg-gray-100 transition-all duration-300 border border-gray-100" data-time="13:30">13:30</button>
@@ -180,16 +140,7 @@
         <div class="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <div>
                 <h2 class="text-brand-blue font-semibold italic text-xl tracking-wide mb-4">Polimedia Peer Counselor</h2>
-                <p class="text-sm text-gray-500 leading-relaxed pr-8">Sebuah inisiatif mahasiswa untuk mahasiswa. Kami ada untuk mendengar, memahami, dan berbagi beban di saat kau membutuhkannya.</p>
-            </div>
-            <div class="flex flex-col gap-3">
-                <h4 class="font-bold text-gray-900 mb-2 uppercase tracking-widest text-xs">Akses Cepat</h4>
-                <a href="tentang.html" class="text-sm text-gray-500 hover:text-brand-blue transition">Tentang Kami</a>
-                <a href="pilih-konselor.html" class="text-sm text-gray-500 hover:text-brand-blue transition">Daftar Konselor</a>
-            </div>
-            <div>
-                <h4 class="font-bold text-gray-900 mb-4 uppercase tracking-widest text-xs">Lokasi Kami</h4>
-                <p class="text-sm text-gray-500 leading-relaxed">Politeknik Negeri Media Kreatif<br>Jakarta Selatan</p>
+                <p class="text-sm text-gray-500 leading-relaxed pr-8">Sebuah inisiatif mahasiswa untuk mahasiswa.</p>
             </div>
         </div>
         <div class="max-w-[1200px] mx-auto text-center border-t border-gray-100 pt-8">
