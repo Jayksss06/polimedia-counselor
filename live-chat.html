@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Chat - Polimedia Peer Counselor</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -13,7 +14,7 @@
                         'brand-blue': '#00668F',
                         'brand-dark': '#004A6A',
                         'brand-light': '#F4F7F9',
-                        'brand-green': '#4CAF50',
+                        'brand-green': '#10B981',
                     },
                     fontFamily: {
                         'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
@@ -26,80 +27,57 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
-        /* Custom Scrollbar untuk area chat agar terlihat bersih */
-        .chat-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        .chat-scroll::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .chat-scroll::-webkit-scrollbar-thumb {
-            background-color: #E2E8F0;
-            border-radius: 10px;
-        }
+        .chat-scroll::-webkit-scrollbar { width: 6px; }
+        .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+        .chat-scroll::-webkit-scrollbar-thumb { background-color: #E2E8F0; border-radius: 10px; }
+        
+        /* Animasi pesan masuk */
+        .fade-in-up { animation: fadeInUp 0.3s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-brand-light font-sans text-gray-800 min-h-screen flex flex-col items-center py-6">
 
     <div class="w-full max-w-6xl flex justify-between items-center mb-6 px-4">
-        <a href="index.html" class="text-brand-blue font-medium flex items-center gap-2 hover:text-brand-dark transition">
-            <span>←</span> Kembali ke Halaman Utama
+        <a href="riwayat.html" class="text-brand-blue font-medium flex items-center gap-2 hover:text-brand-dark transition">
+            <span>←</span> Kembali ke Riwayat
         </a>
         <div class="text-brand-blue font-semibold italic text-xl tracking-wide">Polimedia Peer Counselor</div>
-        <div class="flex gap-3 text-gray-400 items-center">
-            <button class="hover:text-brand-blue transition">🔔</button>
-            <div class="w-8 h-8 bg-slate-300 rounded-full overflow-hidden"></div>
+        <div class="flex gap-4 text-gray-400 items-center">
+            <button class="hover:text-brand-blue transition text-xl">🔔</button>
+            <div class="w-8 h-8 bg-white border border-gray-200 rounded-full overflow-hidden shadow-sm">
+                <img data-nav="avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" class="w-full h-full object-cover">
+            </div>
         </div>
     </div>
 
     <div class="w-full max-w-6xl bg-white rounded-[30px] shadow-sm border border-gray-100 flex overflow-hidden h-[650px]">
         
-        <div class="w-1/3 bg-slate-50 border-r border-gray-100 flex flex-col relative">
-            <div class="p-6 pb-4">
-                <h2 class="text-2xl font-bold text-gray-800 mb-1">Pesan Aktif</h2>
-                <p class="text-xs text-gray-500">Temukan dukungan di setiap kata.</p>
+        <div class="w-1/3 bg-slate-50 border-r border-gray-100 flex flex-col relative hidden md:flex">
+            <div class="p-8 pb-4">
+                <h2 class="text-2xl font-bold text-gray-800 mb-1">Informasi Sesi</h2>
+                <p class="text-xs text-gray-500">Detail pendampingan Anda hari ini.</p>
             </div>
 
-            <div class="flex-1 overflow-y-auto chat-scroll px-4 space-y-2 pb-24">
-                
-                <div class="flex items-center justify-between p-3 bg-white rounded-2xl shadow-sm border border-gray-100 cursor-pointer">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-full bg-blue-100 text-brand-blue flex items-center justify-center font-bold relative">
-                            SN
-                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-brand-green border-2 border-white rounded-full"></span>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-sm text-gray-800">Siti Nurhaliza</h3>
-                            <p class="text-xs text-gray-500 truncate w-32">Terima kasih sudah bercerita...</p>
-                        </div>
+            <div class="flex-1 p-8 pt-4 flex flex-col gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                    <div class="w-20 h-20 rounded-full bg-blue-50 border-4 border-white shadow-md overflow-hidden mb-4 relative">
+                        <img id="counselorAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Load" class="w-full h-full object-cover">
                     </div>
-                    <span class="text-[10px] font-bold text-brand-green uppercase tracking-wider">Active</span>
+                    <h3 id="counselorName" class="font-bold text-lg text-gray-900">Memuat...</h3>
+                    <p id="counselorJurusan" class="text-xs text-gray-500 mb-3">Peer Counselor</p>
+                    <span class="bg-green-50 text-brand-green px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 border border-green-100">
+                        <span class="w-1.5 h-1.5 bg-brand-green rounded-full animate-pulse"></span> Terhubung
+                    </span>
                 </div>
 
-                <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-white transition cursor-pointer border border-transparent hover:border-gray-100">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-full bg-slate-200 text-gray-500 flex items-center justify-center font-bold text-sm">DP</div>
-                        <div>
-                            <h3 class="font-bold text-sm text-gray-800">Dimas Pratama</h3>
-                            <p class="text-xs text-gray-500 truncate w-32">Sama-sama, saya di sini untukmu.</p>
-                        </div>
-                    </div>
-                    <span class="text-xs text-gray-400">1 jam lalu</span>
-                </div>
-
-                <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-white transition cursor-pointer border border-transparent hover:border-gray-100">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-full bg-slate-200 text-gray-500 flex items-center justify-center font-bold text-sm">RS</div>
-                        <div>
-                            <h3 class="font-bold text-sm text-gray-800">Rina Safitri</h3>
-                            <p class="text-xs text-gray-500 truncate w-32">Besok kita lanjut lagi ya?</p>
-                        </div>
-                    </div>
-                    <span class="text-xs text-gray-400">Kemarin</span>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-1">Topik Pembahasan</p>
+                    <h4 id="sessionTopic" class="font-bold text-sm text-brand-blue leading-tight">-</h4>
                 </div>
             </div>
 
-            <div class="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent pointer-events-none">
+            <div class="absolute bottom-0 left-0 w-full p-8 pointer-events-none">
                 <p class="text-brand-blue opacity-30 font-script italic text-xl leading-snug">
                     Tarik napas dalam-dalam...<br>
                     <span class="ml-4 font-bold">Bicaralah dari hati.</span>
@@ -107,71 +85,44 @@
             </div>
         </div>
 
-        <div class="w-2/3 flex flex-col bg-white">
+        <div class="w-full md:w-2/3 flex flex-col bg-white">
             
             <div class="px-8 py-5 border-b border-gray-100 flex justify-between items-center bg-white z-10">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-blue-100 text-brand-blue flex items-center justify-center font-bold text-lg relative">
-                        SN
-                        <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-brand-green border-2 border-white rounded-full"></span>
+                    <div class="w-12 h-12 rounded-full bg-blue-50 overflow-hidden relative border border-blue-100">
+                        <img id="headerCounselorAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Load" class="w-full h-full object-cover">
                     </div>
                     <div>
-                        <h2 class="font-bold text-lg text-gray-800">Siti Nurhaliza</h2>
-                        <div class="flex items-center gap-1.5 text-xs text-brand-green font-medium uppercase tracking-wide">
-                            <span class="w-2 h-2 bg-brand-green rounded-full inline-block"></span> Online Sekarang
+                        <h2 id="headerCounselorName" class="font-bold text-lg text-gray-800">Menghubungkan...</h2>
+                        <div class="flex items-center gap-1.5 text-[10px] text-brand-green font-bold uppercase tracking-wide">
+                            Online Sekarang
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-4 text-gray-400 text-xl">
-                    <button class="hover:text-brand-blue transition">📞</button>
-                    <button class="hover:text-brand-blue transition">⋮</button>
+                <div class="flex gap-3">
+                    <button id="btn-akhiri-sesi" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 px-4 py-2 rounded-full text-xs font-bold transition flex items-center gap-2">
+                        Akhiri Sesi <span>✕</span>
+                    </button>
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto chat-scroll p-8 bg-slate-50/30 flex flex-col space-y-6">
-                
-                <div class="flex justify-center my-2">
-                    <span class="bg-gray-100 text-gray-400 text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">Percakapan Hari Ini</span>
-                </div>
-
-                <div class="flex flex-col items-start max-w-[80%]">
-                    <div class="bg-gray-100 text-gray-700 px-6 py-4 rounded-3xl rounded-tl-sm text-sm leading-relaxed shadow-sm">
-                        Halo! Selamat datang di Polimedia Peer. Saya Siti, konselor rekanmu hari ini. Bagaimana perasaanmu sekarang? Tidak perlu terburu-buru, saya di sini untuk mendengarkan.
-                    </div>
-                    <span class="text-[10px] text-gray-400 mt-1.5 ml-2 uppercase">Siti • 14:02</span>
-                </div>
-
-                <div class="flex flex-col items-end self-end max-w-[80%]">
-                    <div class="bg-brand-blue text-white px-6 py-4 rounded-3xl rounded-br-sm text-sm leading-relaxed shadow-sm">
-                        Halo Siti. Terima kasih. Sejujurnya saya merasa sedikit tertekan dengan tugas akhir saya. Rasanya seperti kehilangan arah.
-                    </div>
-                    <span class="text-[10px] text-gray-400 mt-1.5 mr-2 uppercase">Anda • 14:05</span>
-                </div>
-
-                <div class="flex flex-col items-start max-w-[80%]">
-                    <div class="bg-gray-100 text-gray-700 px-6 py-4 rounded-3xl rounded-tl-sm text-sm leading-relaxed shadow-sm">
-                        Saya sangat memahami itu. Banyak rekan mahasiswa lain juga merasakan hal yang sama. Ingin menceritakan bagian mana yang paling membebani pikiranmu saat ini?
-                    </div>
-                    <span class="text-[10px] text-gray-400 mt-1.5 ml-2 uppercase">Siti • 14:06</span>
-                </div>
-
-                <div class="flex flex-col items-end self-end max-w-[80%]">
-                    <div class="bg-brand-dark text-white px-6 py-4 rounded-3xl rounded-br-sm text-sm leading-relaxed shadow-sm opacity-90">
-                        Saya merasa tidak cukup baik dibandingkan yang lain...
-                    </div>
-                    <span class="text-[10px] text-brand-blue mt-1.5 mr-2 italic font-medium">Anda • Sedang mengetik...</span>
+            <div data-section="chat-area" class="flex-1 overflow-y-auto chat-scroll p-8 bg-slate-50/30 flex flex-col gap-3">
+                <div class="flex justify-center my-4">
+                    <span class="bg-gray-100 text-gray-400 text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">
+                        Memuat Riwayat Percakapan...
+                    </span>
                 </div>
             </div>
 
-            <div class="p-6 bg-white border-t border-gray-100">
+            <div class="p-6 bg-white border-t border-gray-100 flex-shrink-0">
                 <div class="flex items-center gap-3 bg-slate-50 border border-gray-200 p-2 pl-4 rounded-full focus-within:border-brand-blue focus-within:shadow-sm transition">
                     <button class="text-gray-400 hover:text-gray-600 transition text-lg">😊</button>
                     <button class="text-gray-400 hover:text-gray-600 transition text-lg rotate-45">📎</button>
                     
-                    <input type="text" class="flex-1 bg-transparent px-3 py-2 outline-none text-sm text-gray-700" placeholder="Tuliskan isi hatimu di sini...">
+                    <input type="text" placeholder="Tuliskan isi hatimu di sini..." class="flex-1 bg-transparent px-3 py-2 outline-none text-sm text-gray-700" autocomplete="off">
                     
-                    <button id="btn-kirim-chat" class="bg-brand-blue hover:bg-brand-dark text-white px-6 py-2.5 rounded-full text-sm font-bold transition flex items-center gap-2">
-                        Kirim Pesan <span>▹</span>
+                    <button id="btn-kirim-chat" class="bg-brand-blue hover:bg-brand-dark text-white px-6 py-2.5 rounded-full text-sm font-bold transition flex items-center gap-2 shadow-sm">
+                        Kirim <span>➔</span>
                     </button>
                 </div>
                 <div class="text-center mt-3">
@@ -182,7 +133,40 @@
         </div>
     </div>
     
-    <script src="js/chat.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (typeof window.supabaseClient === 'undefined') return;
+            
+            const params = new URLSearchParams(window.location.search);
+            const sesiId = params.get('sesi_id') || localStorage.getItem('active_session_id');
+            if (!sesiId) return;
+
+            // Tarik data sesi untuk menampilkan profil konselor
+            const { data: sesi } = await window.supabaseClient
+                .from('sesi')
+                .select('topik, konselor:konselor_id(jurusan, users:user_id(nama_lengkap, avatar_seed))')
+                .eq('id', sesiId)
+                .single();
+
+            if (sesi && sesi.konselor) {
+                const nama = sesi.konselor.users?.nama_lengkap || 'Konselor';
+                const avatar = sesi.konselor.users?.avatar_seed || nama;
+                const avatarLink = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatar)}`;
+
+                // Update UI Panel Kiri
+                document.getElementById('counselorName').textContent = nama;
+                document.getElementById('counselorJurusan').textContent = sesi.konselor.jurusan || 'Peer Counselor';
+                document.getElementById('counselorAvatar').src = avatarLink;
+                document.getElementById('sessionTopic').textContent = sesi.topik || 'Umum (Bercerita)';
+
+                // Update UI Header Kanan
+                document.getElementById('headerCounselorName').textContent = nama;
+                document.getElementById('headerCounselorAvatar').src = avatarLink;
+            }
+        });
+    </script>
+
+    <script src="js/api.js"></script>
 
 </body>
 </html>
